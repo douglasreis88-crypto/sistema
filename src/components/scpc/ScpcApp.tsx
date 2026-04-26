@@ -85,21 +85,6 @@ export function ScpcApp() {
   const [tipo, setTipo] = useState<"mensal" | "consolidado">("mensal");
   const [activeTab, setActiveTab] = useState("sec-ctrl");
 
-  // ---- TEMA CLARO/ESCURO ----
-  const [isLightTheme, setIsLightTheme] = useState(() => {
-    return localStorage.getItem("scpc_theme") === "light";
-  });
-
-  useEffect(() => {
-    if (isLightTheme) {
-      document.documentElement.classList.add("light-theme");
-      localStorage.setItem("scpc_theme", "light");
-    } else {
-      document.documentElement.classList.remove("light-theme");
-      localStorage.setItem("scpc_theme", "dark");
-    }
-  }, [isLightTheme]);
-
   const irPara = (id: string) => {
     setActiveTab(id);
     const el = document.getElementById(id);
@@ -618,13 +603,6 @@ export function ScpcApp() {
           )}
           <button className="btn-logout-top" onClick={handleTrocarEntidade} title="Trocar entidade/município">
             🔄 Trocar
-          </button>
-          <button
-            className="btn-theme-toggle"
-            onClick={() => setIsLightTheme(prev => !prev)}
-            title={isLightTheme ? "Mudar para tema escuro" : "Mudar para tema claro"}
-          >
-            {isLightTheme ? "🌙 Escuro" : "☀️ Claro"}
           </button>
           <button className="btn-logout-top" onClick={handleLogout}>Sair</button>
         </div>
