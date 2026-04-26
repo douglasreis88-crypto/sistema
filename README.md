@@ -31,6 +31,7 @@ https://douglasreis88-crypto.github.io/start-coding-buddy/
 3. **Deploy**: Os arquivos são publicados no GitHub Pages
 
 ## 🔧 Configuração do GitHub Pages
+<!-- fix build -->
 
 O projeto está configurado para usar GitHub Pages com:
 - **Source**: GitHub Actions
