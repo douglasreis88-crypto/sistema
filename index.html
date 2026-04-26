@@ -43,7 +43,10 @@
   </head>
   <body>
     <div id="root"></div>
-<script type="module" crossorigin src="/assets/index-ABC123.js"></script>
+    
+    <!-- Updated to point to the source entry point. Vite will handle the rest during build. -->
+    <script type="module" src="/src/main.tsx"></script>
+    
     <script>
       document.addEventListener("DOMContentLoaded", function() {
         setTimeout(function() {
