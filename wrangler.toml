@@ -1,1 +1,12 @@
+name = "sistema"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
 
+# Para TanStack Start + @cloudflare/vite-plugin
+main = "./.output/server/index.mjs"
+
+[build]
+command = "npm run build"
+
+[vars]
+NODE_ENV = "production"
