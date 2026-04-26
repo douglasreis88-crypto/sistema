@@ -82,6 +82,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
+    // Processa token OAuth do hash da URL (ex: após login com Google)
+    if (typeof window !== "undefined" && window.location.hash.includes("access_token")) {
+      supabase.auth.getSession().then(() => {
+        // Limpa o hash da URL sem recarregar a página
+        window.history.replaceState(null, "", window.location.pathname);
+      });
+    }
+
     const { data: sub } = supabase.auth.onAuthStateChange((_event, sess) => {
       setSession(sess);
       setUser(sess?.user ?? null);
