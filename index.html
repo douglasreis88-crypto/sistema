@@ -4,6 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SISTEMA DE CONFERÊNCIA DE PRESTAÇÃO DE CONTAS</title>
+    
+    <!-- Estilos para o Wrapper de Competência -->
     <style>
       .competencia-wrapper {
         border: 1px solid #ccc;
@@ -13,6 +15,9 @@
         display: inline-block;
         font-family: Arial, sans-serif;
         font-size: 14px;
+        /* Garante que o elemento fique visível sobre outros componentes */
+        position: relative;
+        z-index: 10; 
       }
 
       .competencia-group {
@@ -34,6 +39,7 @@
         border-radius: 3px;
         width: 70px;
         text-align: center;
+        background-color: #fff;
       }
 
       .campo-original {
@@ -42,15 +48,20 @@
     </style>
   </head>
   <body>
+    <!-- Container principal da aplicação React -->
     <div id="root"></div>
     
-    <!-- Updated to point to the source entry point. Vite will handle the rest during build. -->
+    <!-- Ponto de entrada do Vite -->
     <script type="module" src="/src/main.tsx"></script>
     
+    <!-- Script para injeção de UI de Competência (Lógica do Wrapper) -->
     <script>
       document.addEventListener("DOMContentLoaded", function() {
+        // Aguarda um momento para garantir que o React já montou os elementos no DOM
         setTimeout(function() {
           var inputOriginal = document.getElementById('inputCompetenciaOriginal');
+          
+          // Se o input original não existe ou já criamos o wrapper, não faz nada
           if (!inputOriginal || document.querySelector('.competencia-wrapper')) return;
 
           var wrapper = document.createElement('div');
@@ -79,11 +90,13 @@
             return { group: group, select: select };
           }
 
+          // Preenche meses (01 a 12)
           var meses = [];
           for (var i = 1; i <= 12; i++) {
             meses.push(String(i).padStart(2, '0'));
           }
 
+          // Preenche anos (atual até 2014)
           var anos = [];
           var anoAtual = new Date().getFullYear();
           for (var j = anoAtual; j >= 2014; j--) {
@@ -96,25 +109,31 @@
           wrapper.appendChild(mesComponente.group);
           wrapper.appendChild(anoComponente.group);
 
+          // Insere o wrapper logo após o input original
           inputOriginal.parentNode.insertBefore(wrapper, inputOriginal.nextSibling);
 
+          // Função que atualiza o input oculto e avisa o React
           function atualizarInputOriginal() {
             var mesVal = mesComponente.select.value;
             var anoVal = anoComponente.select.value;
             inputOriginal.value = anoVal + '/' + mesVal;
-            inputOriginal.dispatchEvent(new Event('change'));
+            
+            // Dispara eventos para que o React perceba a mudança de valor
+            inputOriginal.dispatchEvent(new Event('input', { bubbles: true }));
+            inputOriginal.dispatchEvent(new Event('change', { bubbles: true }));
           }
 
           mesComponente.select.addEventListener('change', atualizarInputOriginal);
           anoComponente.select.addEventListener('change', atualizarInputOriginal);
 
+          // Tenta setar o valor inicial se já houver algo no input
           var valorInicial = inputOriginal.value;
-          if (valorInicial.includes('/')) {
+          if (valorInicial && valorInicial.includes('/')) {
             var partes = valorInicial.split('/');
             if (anos.indexOf(parseInt(partes[0])) !== -1) anoComponente.select.value = partes[0];
             if (meses.indexOf(partes[1]) !== -1) mesComponente.select.value = partes[1];
           }
-        }, 1500);
+        }, 1500); // Timeout de 1.5s
       });
     </script>
   </body>
