@@ -14,5 +14,5 @@ export default defineConfig({
   build: {
     outDir: "dist",
   },
-  base: process.env.NODE_ENV === 'production' ? '/start-coding-buddy/' : '/',
+  base: process.env.NODE_ENV === 'production' ? '/' : '/',
 });
