@@ -43,3 +43,4 @@ O projeto está configurado para usar GitHub Pages com:
 - O arquivo `vite.config.ts` está configurado com `base: '/start-coding-buddy/'` para produção
 - O arquivo `.nojekyll` permite que arquivos começando com `_` sejam servidos
 - O workflow do GitHub Actions está em `.github/workflows/deploy.yml`
+- 
