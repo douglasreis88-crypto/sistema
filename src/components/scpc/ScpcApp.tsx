@@ -522,7 +522,7 @@ export function ScpcApp() {
           backgroundColor: "#ffffff",
           width: element.scrollWidth,
           height: element.scrollHeight,
-          onclone: (clonedDoc) => {
+          onclone: (clonedDoc: Document) => {
             // Pequenos ajustes no clone se necessário
             const clonedEl = clonedDoc.getElementById(id);
             if (clonedEl) {
@@ -707,7 +707,7 @@ export function ScpcApp() {
                   disabled={formLocked}
                 >
                   <option value="">— Selecione o município —</option>
-                  {permissions.municipiosPorEntidade.prefeitura?.map(m => (
+                  {permissions.municipiosPorEntidade.prefeitura?.map((m: string) => (
                     <option key={m} value={m}>{m}</option>
                   ))}
                 </select>
@@ -726,7 +726,7 @@ export function ScpcApp() {
                   disabled={formLocked}
                 >
                   <option value="">— Selecione a entidade —</option>
-                  {permissions.entidades.map(ent => (
+                  {permissions.entidades.map((ent: string) => (
                     <option key={ent} value={ENTITY_LABELS[ent]}>{ENTITY_LABELS[ent]}</option>
                   ))}
                 </select>
