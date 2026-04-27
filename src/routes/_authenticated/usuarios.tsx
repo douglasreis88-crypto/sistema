@@ -97,8 +97,7 @@ function UsuariosPage() {
       return;
     }
 
-    // Se papel for admin, precisamos atualizar o user_roles depois.
-    // Mas primeiro restaura sessão do admin atual.
+    // Restaura sessão do admin antes de qualquer operação no banco
     if (oldSession.session) {
       await supabase.auth.setSession({
         access_token: oldSession.session.access_token,
@@ -106,13 +105,28 @@ function UsuariosPage() {
       });
     }
 
-    if (newRole === "admin" && data.user) {
-      // remove o role 'user' default e adiciona 'admin'
-      await supabase.from("user_roles").delete().eq("user_id", data.user.id);
-      await supabase.from("user_roles").insert({ user_id: data.user.id, role: "admin" });
+    if (!data.user) {
+      toast.error("Não foi possível obter os dados do usuário criado.");
+      setCreating(false);
+      return;
     }
 
-    toast.success(`Usuário ${newName} criado.`);
+    // Cria o perfil manualmente (não depende de trigger nem de confirmação de e-mail)
+    const { error: profileError } = await supabase.from("profiles").upsert({
+      id: data.user.id,
+      full_name: newName.trim(),
+      email: newEmail.trim(),
+    });
+
+    if (profileError) {
+      toast.error("Usuário criado mas erro ao salvar perfil: " + profileError.message);
+    }
+
+    // Define o papel do usuário
+    await supabase.from("user_roles").delete().eq("user_id", data.user.id);
+    await supabase.from("user_roles").insert({ user_id: data.user.id, role: newRole });
+
+    toast.success(`Usuário ${newName} criado com sucesso!`);
     setNewName("");
     setNewEmail("");
     setNewPwd("");
