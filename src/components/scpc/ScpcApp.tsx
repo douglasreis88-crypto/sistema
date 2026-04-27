@@ -87,7 +87,9 @@ export function ScpcApp() {
 
   // ---- TEMA CLARO/ESCURO ----
   const [isLightTheme, setIsLightTheme] = useState(() => {
-    return localStorage.getItem("scpc_theme") === "light";
+    const saved = localStorage.getItem("scpc_theme");
+    if (saved) return saved === "light";
+    return window.matchMedia("(prefers-color-scheme: light)").matches;
   });
 
   useEffect(() => {
@@ -522,7 +524,7 @@ export function ScpcApp() {
           backgroundColor: "#ffffff",
           width: element.scrollWidth,
           height: element.scrollHeight,
-          onclone: (clonedDoc: Document) => {
+          onclone: (clonedDoc) => {
             // Pequenos ajustes no clone se necessário
             const clonedEl = clonedDoc.getElementById(id);
             if (clonedEl) {
@@ -707,7 +709,7 @@ export function ScpcApp() {
                   disabled={formLocked}
                 >
                   <option value="">— Selecione o município —</option>
-                  {permissions.municipiosPorEntidade.prefeitura?.map((m: string) => (
+                  {permissions.municipiosPorEntidade.prefeitura?.map(m => (
                     <option key={m} value={m}>{m}</option>
                   ))}
                 </select>
@@ -726,7 +728,7 @@ export function ScpcApp() {
                   disabled={formLocked}
                 >
                   <option value="">— Selecione a entidade —</option>
-                  {permissions.entidades.map((ent: string) => (
+                  {permissions.entidades.map(ent => (
                     <option key={ent} value={ENTITY_LABELS[ent]}>{ENTITY_LABELS[ent]}</option>
                   ))}
                 </select>
@@ -1156,4 +1158,5 @@ export function ScpcApp() {
     </>
   );
 }
+
 
