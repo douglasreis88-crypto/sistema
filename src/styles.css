@@ -98,8 +98,9 @@
 :root.light-theme .saldo-title { color: #7f5f00 !important; }
 :root.light-theme .alt-block { background: #dae3f3 !important; border-color: #4472c4 !important; }
 :root.light-theme .alt-block-title { color: #2f5496 !important; }
-:root.light-theme .restos-dif-row { background: #ffc000 !important; }
-:root.light-theme .restos-dif-row .val-input { background: transparent !important; color: #000 !important; }
+:root.light-theme .restos-dif-row { background: rgba(245,158,11,0.85) !important; border-color: #f59e0b !important; }
+:root.light-theme .restos-dif-row .val-input { background: transparent !important; color: #0f1117 !important; }
+:root.light-theme .restos-dif-row .badge-dif { background: rgba(180,110,0,0.9) !important; color: #0f1117 !important; border-color: #b45309 !important; }
 :root.light-theme .restos-siga-row { background: #e2efda !important; border: 1px solid #70ad47 !important; }
 :root.light-theme .inner-divider { border-color: #a9d18e !important; }
 
@@ -1584,18 +1585,19 @@ body.export-pdf-mode .btn-gerenciar-usuarios {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #bfb400;
+  background: rgba(245,158,11,0.85);
   border-radius: 4px;
   padding: 4px 8px;
+  border: 1px solid #f59e0b;
 }
 .restos-dif-row .val-input {
   background: transparent;
-  color: #000;
+  color: #0f1117;
   font-weight: 700;
 }
 .restos-dif-row .badge-dif {
-  background: #7a6e00;
-  color: #ffe;
+  background: rgba(180,110,0,0.9);
+  color: #0f1117;
 }
 .restos-siga-row .val-input {
   background: transparent;
