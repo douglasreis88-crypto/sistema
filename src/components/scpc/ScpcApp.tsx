@@ -914,8 +914,8 @@ export function ScpcApp() {
             </div>
             <div>
               <div className="sub-heading">Dotação</div>
-              <ValRow badge="dot" id="dot_sistema" />
-              <ValRow badge="dot" label="SIGA" id="dot_siga" />
+              <ValRow badge="dot" id="dot_sistema" readOnly title="Calculado automaticamente: Fixado + Alt.QDD - Anul.QDD + Créd.Adic. - Anul.Créd." />
+              <ValRow badge="dot" label="SIGA" id="dot_siga" readOnly title="Calculado automaticamente: Fixado + Alt.QDD - Anul.QDD + Créd.Adic. - Anul.Créd." />
               <ValRow badge="dif" id="dot_dif" readOnly />
             </div>
           </div>
