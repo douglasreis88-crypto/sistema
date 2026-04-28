@@ -1,0 +1,341 @@
+import { jsPDF } from "jspdf";
+
+const getVal = (id: string): string => {
+  const el = document.getElementById(id) as HTMLInputElement | null;
+  return el?.value || "0,00";
+};
+
+const n = (id: string) => getVal(id);
+
+interface Section {
+  title: string;
+  rows: Row[];
+}
+
+interface Row {
+  label: string;
+  sist?: string;
+  siga?: string;
+  dif?: string;
+  isSubheader?: boolean;
+  isMesAno?: boolean;
+  mesLabel?: string;
+  anoLabel?: string;
+  sistMes?: string; sistAno?: string;
+  sigaMes?: string; sigaAno?: string;
+  difMes?: string; difAno?: string;
+}
+
+export const gerarPdfRelatorio = (
+  municipio: string,
+  entidade: string,
+  competencia: string,
+  consolidado: string,
+  tipo: string
+) => {
+  const pdf = new jsPDF({ orientation: "l", unit: "mm", format: "a4" });
+  const PW = pdf.internal.pageSize.getWidth();   // 297
+  const PH = pdf.internal.pageSize.getHeight();  // 210
+  const M = 10; // margem
+
+  // ── Cores ──
+  const AZUL     = [30,  80, 160] as const;
+  const AZUL_CLR = [210, 225, 250] as const;
+  const VERDE    = [60, 140,  60] as const;
+  const VERDE_CLR= [220, 245, 220] as const;
+  const VERM     = [180,  30,  30] as const;
+  const VERM_CLR = [250, 220, 220] as const;
+  const CINZA    = [100, 100, 100] as const;
+  const CINZA_CLR= [240, 240, 240] as const;
+  const AMAR     = [200, 160,   0] as const;
+  const AMAR_CLR = [255, 248, 200] as const;
+  const BRANCO   = [255, 255, 255] as const;
+  const PRETO    = [20,  20,  20] as const;
+
+  let y = M;
+  let pageNum = 1;
+
+  const addPage = () => {
+    pdf.addPage();
+    pageNum++;
+    y = M;
+    drawPageHeader();
+  };
+
+  const checkY = (needed: number) => {
+    if (y + needed > PH - M) addPage();
+  };
+
+  const drawPageHeader = () => {
+    // Faixa azul título
+    pdf.setFillColor(...AZUL);
+    pdf.rect(M, y, PW - M * 2, 8, "F");
+    pdf.setTextColor(...BRANCO);
+    pdf.setFontSize(11);
+    pdf.setFont("helvetica", "bold");
+    pdf.text("DEMONSTRATIVO DE CONFERÊNCIA CONTÁBIL", PW / 2, y + 5.5, { align: "center" });
+    y += 9;
+
+    // Linha de info
+    pdf.setFillColor(...AZUL_CLR);
+    pdf.rect(M, y, PW - M * 2, 6, "F");
+    pdf.setTextColor(...PRETO);
+    pdf.setFontSize(8);
+    pdf.setFont("helvetica", "normal");
+    const comp = tipo === "mensal" ? competencia : `Consolidado ${consolidado}`;
+    pdf.text(`Município: ${municipio.toUpperCase()}`, M + 2, y + 4);
+    pdf.text(`Entidade: ${entidade.toUpperCase()}`, PW / 2, y + 4, { align: "center" });
+    pdf.text(`Competência: ${comp}`, PW - M - 2, y + 4, { align: "right" });
+    y += 7;
+  };
+
+  // ── Cabeçalho inicial ──
+  drawPageHeader();
+
+  // ── Função para desenhar uma seção ──
+  const COL_LABEL = 70;
+  const COL_W = (PW - M * 2 - COL_LABEL) / 3;
+  const ROW_H = 5.5;
+
+  const drawSectionHeader = (title: string) => {
+    checkY(8);
+    y += 2;
+    pdf.setFillColor(...CINZA);
+    pdf.rect(M, y, PW - M * 2, 6, "F");
+    pdf.setTextColor(...BRANCO);
+    pdf.setFontSize(8);
+    pdf.setFont("helvetica", "bold");
+    pdf.text(title.toUpperCase(), M + 3, y + 4);
+    y += 7;
+  };
+
+  const drawColHeaders = () => {
+    checkY(6);
+    const x0 = M + COL_LABEL;
+    pdf.setFillColor(...CINZA_CLR);
+    pdf.rect(M, y, PW - M * 2, 5, "F");
+    pdf.setTextColor(...CINZA);
+    pdf.setFontSize(7);
+    pdf.setFont("helvetica", "bold");
+    pdf.text("SISTEMA", x0 + COL_W * 0.5, y + 3.5, { align: "center" });
+    pdf.text("SIGA",    x0 + COL_W * 1.5, y + 3.5, { align: "center" });
+    pdf.text("DIFERENÇA", x0 + COL_W * 2.5, y + 3.5, { align: "center" });
+    y += 5;
+  };
+
+  const drawRow = (label: string, sist: string, siga: string, dif: string, shade = false) => {
+    checkY(ROW_H);
+    const x0 = M + COL_LABEL;
+    if (shade) {
+      pdf.setFillColor(...AZUL_CLR);
+      pdf.rect(M, y, PW - M * 2, ROW_H, "F");
+    }
+    pdf.setDrawColor(200, 200, 200);
+    pdf.line(M, y + ROW_H, M + PW - M * 2, y + ROW_H);
+
+    pdf.setTextColor(...PRETO);
+    pdf.setFontSize(7.5);
+    pdf.setFont("helvetica", "normal");
+    pdf.text(label, M + 2, y + 3.8);
+
+    // SIST
+    pdf.setFont("helvetica", "bold");
+    pdf.setTextColor(...AZUL);
+    pdf.text(sist, x0 + COL_W * 0.95, y + 3.8, { align: "right" });
+
+    // SIGA
+    pdf.setTextColor(...VERDE);
+    pdf.text(siga, x0 + COL_W * 1.95, y + 3.8, { align: "right" });
+
+    // DIF
+    const difNum = parseFloat(dif.replace(/\./g, "").replace(",", ".").replace(/[^\d.\-]/g, ""));
+    if (Math.abs(difNum) < 0.01) pdf.setTextColor(...VERDE);
+    else pdf.setTextColor(...VERM);
+    pdf.text(dif, x0 + COL_W * 2.95, y + 3.8, { align: "right" });
+
+    y += ROW_H;
+  };
+
+  const drawMesAnoRow = (label: string, pMes: string, pAno: string) => {
+    // Subheader
+    checkY(ROW_H * 3 + 5);
+    const x0 = M + COL_LABEL;
+    pdf.setFillColor(...CINZA_CLR);
+    pdf.rect(M, y, PW - M * 2, ROW_H, "F");
+    pdf.setTextColor(...CINZA);
+    pdf.setFontSize(7);
+    pdf.setFont("helvetica", "bold");
+    pdf.text(label.toUpperCase(), M + 2, y + 3.8);
+    pdf.text("SIST. MÊS", x0 + COL_W * 0.25, y + 3.8, { align: "center" });
+    pdf.text("SIST. ANO", x0 + COL_W * 0.75, y + 3.8, { align: "center" });
+    pdf.text("SIGA MÊS", x0 + COL_W * 1.25, y + 3.8, { align: "center" });
+    pdf.text("SIGA ANO", x0 + COL_W * 1.75, y + 3.8, { align: "center" });
+    pdf.text("DIF MÊS",  x0 + COL_W * 2.25, y + 3.8, { align: "center" });
+    pdf.text("DIF ANO",  x0 + COL_W * 2.75, y + 3.8, { align: "center" });
+    y += ROW_H;
+
+    const vals = [
+      n(`${pMes}_sistema`), n(`${pAno}_sistema`),
+      n(`${pMes}_siga`),    n(`${pAno}_siga`),
+      n(`${pMes}_dif`),     n(`${pAno}_dif`),
+    ];
+
+    pdf.setFontSize(7.5);
+    pdf.setFont("helvetica", "bold");
+    pdf.setTextColor(...AZUL);
+    pdf.text(vals[0], x0 + COL_W * 0.48, y + 3.8, { align: "right" });
+    pdf.text(vals[1], x0 + COL_W * 0.98, y + 3.8, { align: "right" });
+    pdf.setTextColor(...VERDE);
+    pdf.text(vals[2], x0 + COL_W * 1.48, y + 3.8, { align: "right" });
+    pdf.text(vals[3], x0 + COL_W * 1.98, y + 3.8, { align: "right" });
+
+    const d1 = parseFloat(vals[4].replace(/\./g, "").replace(",", "."));
+    const d2 = parseFloat(vals[5].replace(/\./g, "").replace(",", "."));
+    pdf.setTextColor(Math.abs(d1) < 0.01 ? 60 : 180, Math.abs(d1) < 0.01 ? 140 : 30, Math.abs(d1) < 0.01 ? 60 : 30);
+    pdf.text(vals[4], x0 + COL_W * 2.48, y + 3.8, { align: "right" });
+    pdf.setTextColor(Math.abs(d2) < 0.01 ? 60 : 180, Math.abs(d2) < 0.01 ? 140 : 30, Math.abs(d2) < 0.01 ? 60 : 30);
+    pdf.text(vals[5], x0 + COL_W * 2.98, y + 3.8, { align: "right" });
+
+    pdf.setDrawColor(200, 200, 200);
+    pdf.line(M, y + ROW_H, M + PW - M * 2, y + ROW_H);
+    y += ROW_H + 1;
+  };
+
+  // ══════════════════════════════
+  // SEÇÃO 1 — ORÇAMENTO
+  // ══════════════════════════════
+  drawSectionHeader("1. Orçamento");
+  drawColHeaders();
+  drawRow("Valor Fixado", n("fix_sistema"), n("fix_siga"), n("fix_dif"), false);
+  drawRow("Alt. QDD — Mês",        n("alt_mes_qdd_sistema"),  n("alt_mes_qdd_siga"),  n("alt_mes_qdd_dif"), true);
+  drawRow("Anulação QDD — Mês",    n("alt_mes_qdd2_sistema"), n("alt_mes_qdd2_siga"), n("alt_mes_qdd2_dif"));
+  drawRow("Créd. Adicionais — Mês",n("alt_mes_cred_sistema"), n("alt_mes_cred_siga"), n("alt_mes_cred_dif"), true);
+  drawRow("Anulação Créd. — Mês",  n("alt_mes_cred2_sistema"),n("alt_mes_cred2_siga"),n("alt_mes_cred2_dif"));
+  drawRow("Alt. QDD — Ano",        n("alt_ano_qdd_sistema"),  n("alt_ano_qdd_siga"),  n("alt_ano_qdd_dif"), true);
+  drawRow("Anulação QDD — Ano",    n("alt_ano_qdd2_sistema"), n("alt_ano_qdd2_siga"), n("alt_ano_qdd2_dif"));
+  drawRow("Créd. Adicionais — Ano",n("alt_ano_cred_sistema"), n("alt_ano_cred_siga"), n("alt_ano_cred_dif"), true);
+  drawRow("Anulação Créd. — Ano",  n("alt_ano_cred2_sistema"),n("alt_ano_cred2_siga"),n("alt_ano_cred2_dif"));
+
+  // Dotação com destaque
+  checkY(ROW_H);
+  pdf.setFillColor(...AMAR_CLR);
+  pdf.rect(M, y, PW - M * 2, ROW_H, "F");
+  pdf.setTextColor(...AMAR);
+  pdf.setFontSize(7.5);
+  pdf.setFont("helvetica", "bold");
+  const x0dot = M + COL_LABEL;
+  pdf.setTextColor(100, 60, 0);
+  pdf.text("◆ DOTAÇÃO (calculada)", M + 2, y + 3.8);
+  pdf.setTextColor(...AZUL);
+  pdf.text(n("dot_sistema"), x0dot + COL_W * 0.95, y + 3.8, { align: "right" });
+  pdf.setTextColor(...VERDE);
+  pdf.text(n("dot_siga"),    x0dot + COL_W * 1.95, y + 3.8, { align: "right" });
+  const difDot = parseFloat(n("dot_dif").replace(/\./g, "").replace(",", "."));
+  pdf.setTextColor(Math.abs(difDot) < 0.01 ? 60 : 180, Math.abs(difDot) < 0.01 ? 140 : 30, Math.abs(difDot) < 0.01 ? 60 : 30);
+  pdf.text(n("dot_dif"),     x0dot + COL_W * 2.95, y + 3.8, { align: "right" });
+  y += ROW_H + 2;
+
+  // ══════════════════════════════
+  // SEÇÃO 2 — DESPESA
+  // ══════════════════════════════
+  drawSectionHeader("2. Despesa Orçamentária");
+  drawMesAnoRow("Empenhado", "emp_mes", "emp_ano");
+  drawMesAnoRow("Liquidado",  "liq_mes", "liq_ano");
+  drawMesAnoRow("Pagamento",  "pag_mes", "pag_ano");
+
+  // Restos a Pagar
+  checkY(ROW_H * 3);
+  pdf.setFillColor(...CINZA_CLR);
+  pdf.rect(M, y, PW - M * 2, ROW_H, "F");
+  pdf.setTextColor(...CINZA);
+  pdf.setFontSize(7);
+  pdf.setFont("helvetica", "bold");
+  pdf.text("RESTOS A PAGAR", M + 2, y + 3.8);
+  y += ROW_H;
+  drawRow("Processado (SIST.)",     n("proc_sistema"),     "—", "—");
+  drawRow("Não Processado (SIST.)", n("naoproc_sistema"),  "—", "—", true);
+  drawRow("SIGA (Emp.Ano − Pag.Ano)", "—", n("proc_siga"), "—");
+  drawRow("DIF Restos a Pagar",     n("proc_sistema") + " + " + n("naoproc_sistema"), n("proc_siga"), n("proc_dif"), true);
+
+  // Saldo Disponível
+  checkY(ROW_H * 2);
+  pdf.setFillColor(...AMAR_CLR);
+  pdf.rect(M, y, PW - M * 2, ROW_H, "F");
+  pdf.setTextColor(100, 60, 0);
+  pdf.setFontSize(7.5);
+  pdf.setFont("helvetica", "bold");
+  pdf.text("◆ SALDO DISPONÍVEL", M + 2, y + 3.8);
+  const x0s = M + COL_LABEL;
+  pdf.setTextColor(...AZUL);
+  pdf.text(n("saldo_disp_sistema"), x0s + COL_W * 0.95, y + 3.8, { align: "right" });
+  pdf.setTextColor(...VERDE);
+  pdf.text(n("saldo_disp_siga"),    x0s + COL_W * 1.95, y + 3.8, { align: "right" });
+  const difSaldo = parseFloat(n("saldo_disp_dif").replace(/\./g, "").replace(",", "."));
+  pdf.setTextColor(Math.abs(difSaldo) < 0.01 ? 60 : 180, Math.abs(difSaldo) < 0.01 ? 140 : 30, Math.abs(difSaldo) < 0.01 ? 60 : 30);
+  pdf.text(n("saldo_disp_dif"),     x0s + COL_W * 2.95, y + 3.8, { align: "right" });
+  y += ROW_H + 2;
+
+  // ══════════════════════════════
+  // SEÇÃO 3 — RAZÃO
+  // ══════════════════════════════
+  drawSectionHeader("3. Razão");
+  drawColHeaders();
+  drawRow("Devedor — Mês",      n("raz_desp_mes_sistema"), n("raz_desp_mes_siga"), n("raz_desp_mes_dif"));
+  drawRow("Devedor — Ano",      n("raz_desp_ano_sistema"), n("raz_desp_ano_siga"), n("raz_desp_ano_dif"), true);
+  drawRow("Credor — Mês",       n("raz_rec_mes_sistema"),  n("raz_rec_mes_siga"),  n("raz_rec_mes_dif"));
+  drawRow("Credor — Ano",       n("raz_rec_ano_sistema"),  n("raz_rec_ano_siga"),  n("raz_rec_ano_dif"), true);
+  drawRow("Saldo Devedor",      n("raz_saldo_dev_sistema"),n("raz_saldo_dev_siga"),n("raz_saldo_dev_dif"));
+  drawRow("Saldo Credor",       n("raz_saldo_cred_sistema"),n("raz_saldo_cred_siga"),n("raz_saldo_cred_dif"), true);
+  drawRow("Devedor — Mês (Raz)",n("raz_devedor_sistema"),  n("raz_devedor_siga"),  n("raz_devedor_dif"));
+  drawRow("Credor — Mês (Raz)", n("raz_credor_sistema"),   n("raz_credor_siga"),   n("raz_credor_dif"), true);
+
+  // ══════════════════════════════
+  // SEÇÃO 4 — CONCILIAÇÃO
+  // ══════════════════════════════
+  drawSectionHeader("4. Conciliação Bancária");
+  drawColHeaders();
+  drawRow("Conciliação", n("conc_sistema"), n("conc_siga"), n("conc_dif"));
+
+  // ══════════════════════════════
+  // SEÇÃO 5 — MOVIMENTAÇÃO BANCÁRIA
+  // ══════════════════════════════
+  drawSectionHeader("5. Movimentação Bancária");
+  drawColHeaders();
+  drawRow("Crédito", n("mov_cred_sistema"), n("mov_cred_siga"), n("mov_cred_dif"));
+  drawRow("Débito",  n("mov_deb_sistema"),  n("mov_deb_siga"),  n("mov_deb_dif"), true);
+
+  // ══════════════════════════════
+  // SEÇÃO 6 — DEMONSTRATIVOS
+  // ══════════════════════════════
+  drawSectionHeader("6. Demonstrativos Extras");
+  drawMesAnoRow("Ingresso",    "ing_mes", "ing_ano");
+  drawMesAnoRow("Desembolso",  "des_mes", "des_ano");
+
+  // ══════════════════════════════
+  // SEÇÃO 7 — RECEITA
+  // ══════════════════════════════
+  drawSectionHeader("7. Receita");
+  drawColHeaders();
+  drawRow("Receita Fixada",   n("rec_fix_sistema"), n("rec_fix_siga"), n("rec_fix_dif"));
+  drawMesAnoRow("Receita", "rec_mes", "rec_ano");
+  drawRow("Para Mais",  n("rec_mais_sist"), n("rec_mais_siga"), n("rec_mais_dif"), true);
+  drawRow("Para Menos", n("rec_menos_sist"),n("rec_menos_siga"),n("rec_menos_dif"));
+
+  // ── Rodapé em todas as páginas ──
+  const totalPages = pdf.getNumberOfPages();
+  for (let p = 1; p <= totalPages; p++) {
+    pdf.setPage(p);
+    pdf.setFillColor(...AZUL);
+    pdf.rect(M, PH - 8, PW - M * 2, 6, "F");
+    pdf.setTextColor(...BRANCO);
+    pdf.setFontSize(7);
+    pdf.setFont("helvetica", "normal");
+    pdf.text("SCPC — Sistema de Conferência de Prestação de Contas", M + 2, PH - 4);
+    pdf.text(`Página ${p} de ${totalPages}`, PW - M - 2, PH - 4, { align: "right" });
+  }
+
+  // Nome do arquivo
+  const comp = tipo === "mensal" ? competencia.replace("/", "-") : consolidado;
+  const fileName = `SCPC — ${municipio} — ${entidade} — ${comp}.pdf`;
+  pdf.save(fileName);
+};
