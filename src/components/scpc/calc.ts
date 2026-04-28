@@ -6,12 +6,15 @@
 
 export const fmtBR = (n: number): string => {
   if (!isFinite(n)) return "0,00";
-  const abs = Math.abs(n);
+  // Arredonda para 2 casas para evitar -0,00 por erro de ponto flutuante
+  const rounded = Math.round(n * 100) / 100;
+  if (rounded === 0) return "0,00";
+  const abs = Math.abs(rounded);
   const s = abs.toLocaleString("pt-BR", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
-  return n < 0 ? `-${s}` : s;
+  return rounded < 0 ? `-${s}` : s;
 };
 
 export const parseBR = (raw: string | null | undefined): number => {
