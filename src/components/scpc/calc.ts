@@ -99,6 +99,41 @@ const PREFIXES_AJUSTE = [
   "pag_mes", "pag_ano",
 ];
 
+// Restos a Pagar e Saldo Disponível (sec 2) - campos automáticos
+const recalcRestosSaldo = () => {
+  // SIGA de Restos a Pagar = Empenhado ANO SIGA + Pagamento ANO SIGA
+  const sigaEmpAno = v("emp_ano_siga");
+  const sigaPagAno = v("pag_ano_siga");
+  const sigaRestos = sigaEmpAno + sigaPagAno;
+
+  // Aplica SIGA único nos dois campos (proc e naoproc) — exibe apenas em proc
+  const elProcSiga = document.getElementById("proc_siga") as HTMLInputElement | null;
+  if (elProcSiga) elProcSiga.value = fmtBR(sigaRestos);
+
+  // Zera naoproc_siga pois SIGA é unificado em proc_siga
+  const elNaoProcSiga = document.getElementById("naoproc_siga") as HTMLInputElement | null;
+  if (elNaoProcSiga) elNaoProcSiga.value = fmtBR(0);
+
+  // DIF Restos a Pagar = (Processado SIST + Não Processado SIST) - SIGA
+  const sistTotal = v("proc_sistema") + v("naoproc_sistema");
+  setCalc("proc_dif", sistTotal - sigaRestos);
+  setCalc("naoproc_dif", 0); // dif do não processado zerado (unificado)
+
+  // SALDO DISPONÍVEL
+  // SIST = Dotação SIST - Empenhado ANO SIST
+  const saldoSist = v("dot_sistema") - v("emp_ano_sistema");
+  // SIGA = Dotação SIGA - Empenhado ANO SIGA
+  const saldoSiga = v("dot_siga") - sigaEmpAno;
+
+  const elSaldoSist = document.getElementById("saldo_disp_sistema") as HTMLInputElement | null;
+  if (elSaldoSist) elSaldoSist.value = fmtBR(saldoSist);
+
+  const elSaldoSiga = document.getElementById("saldo_disp_siga") as HTMLInputElement | null;
+  if (elSaldoSiga) elSaldoSiga.value = fmtBR(saldoSiga);
+
+  setCalc("saldo_disp_dif", saldoSist - saldoSiga);
+};
+
 // Fixado e Dotação (sec 1)
 // Dotação SIST = Fixado SIST + Alt.QDD SIST - Anulação QDD SIST + Créd.Adicionais SIST - Anulação Créd. SIST
 // Dotação SIGA = Fixado SIGA + Alt.QDD SIGA - Anulação QDD SIGA + Créd.Adicionais SIGA - Anulação Créd. SIGA
@@ -159,6 +194,7 @@ export const recalcAll = () => {
   PREFIXES_SIMPLE.forEach(calcDif);
   PREFIXES_AJUSTE.forEach(calcDifAjuste);
   recalcFixDot();
+  recalcRestosSaldo();
   recalcSinteticas();
   recalcReceita();
 };
