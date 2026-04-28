@@ -99,10 +99,32 @@ const PREFIXES_AJUSTE = [
   "pag_mes", "pag_ano",
 ];
 
-// Fixado e Dotação (sec 1) - DIF simples mas IDs personalizados
+// Fixado e Dotação (sec 1)
+// Dotação SIST = Fixado SIST + Alt.QDD SIST - Anulação QDD SIST + Créd.Adicionais SIST - Anulação Créd. SIST
+// Dotação SIGA = Fixado SIGA + Alt.QDD SIGA - Anulação QDD SIGA + Créd.Adicionais SIGA - Anulação Créd. SIGA
 const recalcFixDot = () => {
   setCalc("fix_dif", v("fix_sistema") - v("fix_siga"));
-  setCalc("dot_dif", v("dot_sistema") - v("dot_siga"));
+
+  // Calcula dotação sistema automaticamente
+  const dotSist =
+    v("fix_sistema")
+    + v("alt_ano_qdd_sistema")  - v("alt_ano_qdd2_sistema")
+    + v("alt_ano_cred_sistema") - v("alt_ano_cred2_sistema");
+
+  // Calcula dotação siga automaticamente
+  const dotSiga =
+    v("fix_siga")
+    + v("alt_ano_qdd_siga")  - v("alt_ano_qdd2_siga")
+    + v("alt_ano_cred_siga") - v("alt_ano_cred2_siga");
+
+  // Aplica nos campos (somente leitura)
+  const elSist = document.getElementById("dot_sistema") as HTMLInputElement | null;
+  if (elSist) elSist.value = fmtBR(dotSist);
+
+  const elSiga = document.getElementById("dot_siga") as HTMLInputElement | null;
+  if (elSiga) elSiga.value = fmtBR(dotSiga);
+
+  setCalc("dot_dif", dotSist - dotSiga);
 };
 
 // 3.1 Sintéticas: para cada conta i (1..8), DIF dev/cred = SIST - SIGA, total amarelo = |dif_dev| + |dif_cred|
