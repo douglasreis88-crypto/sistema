@@ -75,12 +75,33 @@
 :root.light-theme .loc-filters input {
   background: var(--surface) !important;
 }
-:root.light-theme .badge-sist { background: #dbeafe !important; color: #1d4ed8 !important; border-color: #93c5fd !important; }
-:root.light-theme .badge-siga { background: #dcfce7 !important; color: #15803d !important; border-color: #86efac !important; }
-:root.light-theme .badge-dif  { background: #fee2e2 !important; color: #b91c1c !important; border-color: #fca5a5 !important; }
+:root.light-theme .badge-sist { background: #4472c4 !important; color: #fff !important; border-color: #2f5496 !important; }
+:root.light-theme .badge-siga { background: #70ad47 !important; color: #fff !important; border-color: #507e32 !important; }
+:root.light-theme .badge-dif  { background: #c00000 !important; color: #fff !important; border-color: #8b0000 !important; }
+:root.light-theme .badge-fix  { background: #4472c4 !important; color: #fff !important; border-color: #2f5496 !important; }
+:root.light-theme .badge-dot  { background: #4472c4 !important; color: #fff !important; border-color: #2f5496 !important; }
 :root.light-theme .razao-sint-cinza { background: rgba(220,38,38,0.10) !important; color: #b91c1c !important; }
 :root.light-theme .receita-input-calculado { background: rgba(220,38,38,0.10) !important; color: #b91c1c !important; }
 :root.light-theme .receita-input-cinza { background: rgba(220,38,38,0.10) !important; color: #b91c1c !important; }
+
+/* Cards e campos no tema claro - estilo planilha */
+:root.light-theme .card { background: #e2efda !important; border-color: #a9d18e !important; }
+:root.light-theme .val-input { background: #ffffff !important; color: #1e2333 !important; border-color: #a9d18e !important; }
+:root.light-theme .val-input.calc { background: #fff2cc !important; color: #7f5f00 !important; border-color: #ffc000 !important; cursor: not-allowed; }
+:root.light-theme .val-input.calc.dif-ok { background: #e2efda !important; color: #375623 !important; border-color: #70ad47 !important; }
+:root.light-theme .val-input.calc.dif-bad { background: #ffd7d7 !important; color: #c00000 !important; border-color: #c00000 !important; }
+:root.light-theme .sec-header { background: #4472c4 !important; color: #fff !important; border-color: #2f5496 !important; }
+:root.light-theme .sec-header::before { background: #ffc000 !important; }
+:root.light-theme .sub-heading { color: #2f5496 !important; border-bottom-color: #a9d18e !important; }
+:root.light-theme .period-label { color: #375623 !important; }
+:root.light-theme .saldo-box { background: #fff2cc !important; border-color: #ffc000 !important; }
+:root.light-theme .saldo-title { color: #7f5f00 !important; }
+:root.light-theme .alt-block { background: #dae3f3 !important; border-color: #4472c4 !important; }
+:root.light-theme .alt-block-title { color: #2f5496 !important; }
+:root.light-theme .restos-dif-row { background: #ffc000 !important; }
+:root.light-theme .restos-dif-row .val-input { background: transparent !important; color: #000 !important; }
+:root.light-theme .restos-siga-row { background: #e2efda !important; border: 1px solid #70ad47 !important; }
+:root.light-theme .inner-divider { border-color: #a9d18e !important; }
 
 /* Botão de tema */
 .btn-theme-toggle {
