@@ -79,6 +79,9 @@ export function ScpcApp() {
   const [entidade, setEntidade] = useState(
     () => sessionStorage.getItem("scpc_sel_entidade") || "",
   );
+  const [nomeDesc, setNomeDesc] = useState(
+    () => sessionStorage.getItem("scpc_nome_desc") || "",
+  );
   
   const { fullName, isAdmin, signOut, user, permissions } = useAuth();
   const navigate = useNavigate();
@@ -87,7 +90,9 @@ export function ScpcApp() {
 
   // ---- TEMA CLARO/ESCURO ----
   const [isLightTheme, setIsLightTheme] = useState(() => {
-    return localStorage.getItem("scpc_theme") === "light";
+    const saved = localStorage.getItem("scpc_theme");
+    if (saved) return saved === "light";
+    return window.matchMedia("(prefers-color-scheme: light)").matches;
   });
 
   useEffect(() => {
@@ -128,6 +133,7 @@ export function ScpcApp() {
       sessionStorage.setItem("scpc_sel_municipio", municipio);
       // Salva sempre em MAIÚSCULAS para bater com o banco de dados
       sessionStorage.setItem("scpc_sel_entidade", entidade.toUpperCase());
+      sessionStorage.setItem("scpc_nome_desc", nomeDesc);
       // Busca a chave (EntityType) baseada no label
       const tipoKey = Object.entries(ENTITY_LABELS).find(([_, label]) => label === entidade)?.[0];
       if (tipoKey) sessionStorage.setItem("scpc_sel_tipo", tipoKey);
@@ -236,7 +242,10 @@ export function ScpcApp() {
     }
     setBusy(true);
     try {
-      const payload = collectForm(tipo, municipio, entidade, competencia, consolidado);
+      const entidadeCompleta = entidade.toUpperCase().includes("DESCENTRALIZ") && nomeDesc.trim()
+        ? `DESCENTRALIZADA — ${nomeDesc.trim().toUpperCase()}`
+        : entidade;
+      const payload = collectForm(tipo, municipio, entidadeCompleta, competencia, consolidado);
       
       if (editMode === "creating") {
         const rec = await saveConference(payload, user.id);
@@ -360,7 +369,10 @@ export function ScpcApp() {
 
   const handleExcel = () => {
     try {
-      const payload = collectForm(tipo, municipio, entidade, competencia, consolidado);
+      const entidadeCompleta = entidade.toUpperCase().includes("DESCENTRALIZ") && nomeDesc.trim()
+        ? `DESCENTRALIZADA — ${nomeDesc.trim().toUpperCase()}`
+        : entidade;
+      const payload = collectForm(tipo, municipio, entidadeCompleta, competencia, consolidado);
       
       // Criar dados para o Excel
       const data = [
@@ -522,7 +534,7 @@ export function ScpcApp() {
           backgroundColor: "#ffffff",
           width: element.scrollWidth,
           height: element.scrollHeight,
-          onclone: (clonedDoc: Document) => {
+          onclone: (clonedDoc) => {
             // Pequenos ajustes no clone se necessário
             const clonedEl = clonedDoc.getElementById(id);
             if (clonedEl) {
@@ -707,7 +719,7 @@ export function ScpcApp() {
                   disabled={formLocked}
                 >
                   <option value="">— Selecione o município —</option>
-                  {permissions.municipiosPorEntidade.prefeitura?.map((m: string) => (
+                  {permissions.municipiosPorEntidade.prefeitura?.map(m => (
                     <option key={m} value={m}>{m}</option>
                   ))}
                 </select>
@@ -726,7 +738,7 @@ export function ScpcApp() {
                   disabled={formLocked}
                 >
                   <option value="">— Selecione a entidade —</option>
-                  {permissions.entidades.map((ent: string) => (
+                  {permissions.entidades.map(ent => (
                     <option key={ent} value={ENTITY_LABELS[ent]}>{ENTITY_LABELS[ent]}</option>
                   ))}
                 </select>
@@ -734,6 +746,20 @@ export function ScpcApp() {
                 <input id="entidade" type="text" value={entidade} readOnly className="locked-input" />
               )}
             </div>
+            {entidade.toUpperCase().includes("DESCENTRALIZ") && (
+              <div className="field" style={{ gridColumn: "1 / -1" }}>
+                <label>Nome da Descentralizada</label>
+                <input
+                  type="text"
+                  className="auth-input"
+                  placeholder="Ex: CAIXA DE PREVIDÊNCIA DE OUROLÂNDIA"
+                  value={nomeDesc}
+                  onChange={(e) => setNomeDesc(e.target.value.toUpperCase())}
+                  disabled={formLocked}
+                  style={{ fontSize: 13 }}
+                />
+              </div>
+            )}
             <div className="field">
               <label>Competência</label>
               <div style={{ display: 'flex', gap: '6px' }}>
@@ -1156,5 +1182,3 @@ export function ScpcApp() {
     </>
   );
 }
-
-
