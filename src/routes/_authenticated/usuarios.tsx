@@ -30,6 +30,11 @@ function UsuariosPage() {
   const [newRole, setNewRole] = useState<"admin" | "user">("user");
   const [creating, setCreating] = useState(false);
 
+  // Modal alterar senha
+  const [pwdModal, setPwdModal] = useState<Row | null>(null);
+  const [newPwdVal, setNewPwdVal] = useState("");
+  const [changingPwd, setChangingPwd] = useState(false);
+
   useEffect(() => {
     if (!authLoading && !isAdmin) {
       toast.error("Acesso restrito a administradores.");
@@ -151,6 +156,36 @@ function UsuariosPage() {
     load();
   };
 
+  const changePassword = async () => {
+    if (!pwdModal) return;
+    if (newPwdVal.length < 8) {
+      toast.error("A senha deve ter no mínimo 8 caracteres.");
+      return;
+    }
+    setChangingPwd(true);
+    const { error } = await supabase.auth.admin.updateUserById(pwdModal.id, {
+      password: newPwdVal,
+    });
+    if (error) {
+      // Fallback: usar resetPasswordForEmail se admin API não disponível
+      const { error: e2 } = await supabase.auth.resetPasswordForEmail(pwdModal.email ?? "", {
+        redirectTo: `${window.location.origin}/`,
+      });
+      if (e2) {
+        toast.error("Erro ao alterar senha: " + e2.message);
+      } else {
+        toast.success(`E-mail de redefinição enviado para ${pwdModal.email}`);
+        setPwdModal(null);
+        setNewPwdVal("");
+      }
+    } else {
+      toast.success(`Senha de ${pwdModal.full_name} alterada com sucesso!`);
+      setPwdModal(null);
+      setNewPwdVal("");
+    }
+    setChangingPwd(false);
+  };
+
   const remove = async (row: Row) => {
     if (row.id === user?.id) {
       toast.error("Você não pode excluir a si mesmo.");
@@ -170,6 +205,7 @@ function UsuariosPage() {
   if (authLoading || !isAdmin) return null;
 
   return (
+    <>
     <div className="usuarios-wrap">
       <div className="topbar">
         <span className="topbar-logo">SCPC</span>
@@ -244,6 +280,14 @@ function UsuariosPage() {
                     </td>
                     <td style={{ textAlign: "right" }}>
                       <button
+                        className="btn btn-senha"
+                        style={{ padding: "5px 10px" }}
+                        onClick={() => { setPwdModal(r); setNewPwdVal(""); }}
+                        title="Alterar senha do usuário"
+                      >
+                        🔑 Alterar Senha
+                      </button>{" "}
+                      <button
                         className="btn btn-alterar"
                         style={{ padding: "5px 10px" }}
                         onClick={() => toggleRole(r)}
@@ -269,5 +313,57 @@ function UsuariosPage() {
         </div>
       </div>
     </div>
+
+      {/* Modal Alterar Senha */}
+      {pwdModal && (
+        <div style={{
+          position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)",
+          display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000
+        }}>
+          <div style={{
+            background: "var(--surface)", border: "1px solid var(--border)",
+            borderRadius: "8px", padding: "28px 32px", minWidth: "340px",
+            display: "flex", flexDirection: "column", gap: "16px"
+          }}>
+            <h3 style={{ margin: 0, color: "var(--text)", fontSize: "14px", fontWeight: 700, letterSpacing: "1px", textTransform: "uppercase" }}>
+              🔑 Alterar Senha
+            </h3>
+            <p style={{ margin: 0, color: "var(--text-muted)", fontSize: "13px" }}>
+              Usuário: <strong style={{ color: "var(--text)" }}>{pwdModal.full_name}</strong><br />
+              E-mail: <span style={{ color: "var(--blue)" }}>{pwdModal.email}</span>
+            </p>
+            <input
+              type="password"
+              placeholder="Nova senha (mín. 8 caracteres)"
+              value={newPwdVal}
+              onChange={e => setNewPwdVal(e.target.value)}
+              style={{
+                background: "var(--surface2)", border: "1px solid var(--border)",
+                borderRadius: "4px", padding: "8px 12px", color: "var(--text)",
+                fontSize: "13px", outline: "none"
+              }}
+            />
+            <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
+              <button
+                className="btn"
+                style={{ padding: "7px 16px", background: "var(--surface2)", color: "var(--text-muted)" }}
+                onClick={() => { setPwdModal(null); setNewPwdVal(""); }}
+                disabled={changingPwd}
+              >
+                Cancelar
+              </button>
+              <button
+                className="btn btn-alterar"
+                style={{ padding: "7px 16px" }}
+                onClick={changePassword}
+                disabled={changingPwd || newPwdVal.length < 8}
+              >
+                {changingPwd ? "Salvando..." : "✓ Salvar Senha"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
