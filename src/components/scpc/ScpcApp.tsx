@@ -949,14 +949,28 @@ export function ScpcApp() {
 
           <hr className="inner-divider" />
           <div className="sub-heading">Restos a Pagar</div>
-          <div className="mes-ano-grid">
-            <div>
-              <div className="period-label">Processado</div>
-              <SistSigaDif prefix="proc" readOnlySiga readOnlyDif />
+          <div className="restos-grid">
+            {/* Cabeçalho */}
+            <div className="restos-header">Processado</div>
+            <div className="restos-header">Não Processado</div>
+            {/* SIST - dois campos editáveis */}
+            <div className="input-row">
+              <span className="badge badge-sist">Sist.</span>
+              <input type="text" className="val-input" id="proc_sistema" placeholder="0,00" />
             </div>
-            <div>
-              <div className="period-label">Não Processado</div>
-              <SistSigaDif prefix="naoproc" readOnlySiga readOnlyDif />
+            <div className="input-row">
+              <span className="badge badge-sist">Sist.</span>
+              <input type="text" className="val-input" id="naoproc_sistema" placeholder="0,00" />
+            </div>
+            {/* SIGA - campo único centralizado, ocupa 2 colunas */}
+            <div className="restos-siga-row">
+              <span className="badge badge-siga">SIGA</span>
+              <input type="text" className="val-input calc" id="proc_siga" placeholder="0,00" readOnly />
+            </div>
+            {/* DIF - campo único centralizado amarelo, ocupa 2 colunas */}
+            <div className="restos-dif-row">
+              <span className="badge badge-dif">DIF</span>
+              <input type="text" className="val-input calc dif-ok" id="proc_dif" placeholder="0,00" readOnly data-role="dif" />
             </div>
           </div>
 
