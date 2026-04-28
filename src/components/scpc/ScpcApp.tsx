@@ -952,17 +952,17 @@ export function ScpcApp() {
           <div className="mes-ano-grid">
             <div>
               <div className="period-label">Processado</div>
-              <SistSigaDif prefix="proc" />
+              <SistSigaDif prefix="proc" readOnlySiga readOnlyDif />
             </div>
             <div>
               <div className="period-label">Não Processado</div>
-              <SistSigaDif prefix="naoproc" />
+              <SistSigaDif prefix="naoproc" readOnlySiga readOnlyDif />
             </div>
           </div>
 
           <div className="saldo-box">
             <div className="saldo-title">◆ Saldo Disponível</div>
-            <SistSigaDif prefix="saldo_disp" />
+            <SistSigaDif prefix="saldo_disp" readOnlySist readOnlySiga readOnlyDif />
           </div>
         </div>
 
