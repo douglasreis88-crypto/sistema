@@ -1,5 +1,6 @@
 @import "tailwindcss" source(none);
 @source "../src";
+@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -88,21 +89,33 @@
   font-weight: 700;
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  padding: 6px 12px;
-  border-radius: 4px;
-  border: 1px solid var(--border);
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1.5px solid var(--blue);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: var(--surface2);
-  color: var(--text-muted);
-  transition: filter .15s, transform .15s, background .2s, color .2s;
+  background: transparent;
+  color: var(--blue);
+  transition: background .2s, color .2s, transform .15s, box-shadow .2s;
+  box-shadow: 0 0 0 0 rgba(59,130,246,0);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .btn-theme-toggle:hover {
-  filter: brightness(1.1);
+  background: var(--blue);
+  color: #fff;
   transform: translateY(-1px);
-  color: var(--text);
+  box-shadow: 0 4px 12px rgba(59,130,246,0.35);
+}
+:root.light-theme .btn-theme-toggle {
+  border-color: var(--blue);
+  color: var(--blue);
+}
+:root.light-theme .btn-theme-toggle:hover {
+  background: var(--blue);
+  color: #fff;
 }
 
 
@@ -1518,4 +1531,51 @@ body.export-pdf-mode .btn-logout-top,
 body.export-pdf-mode .btn-cadastro-usuario,
 body.export-pdf-mode .btn-gerenciar-usuarios {
   display: none !important;
+}
+
+/* ---- Restos a Pagar - layout especial ---- */
+.restos-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 16px;
+  align-items: center;
+}
+.restos-header {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+}
+.restos-siga-row {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface2);
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+.restos-dif-row {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #bfb400;
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+.restos-dif-row .val-input {
+  background: transparent;
+  color: #000;
+  font-weight: 700;
+}
+.restos-dif-row .badge-dif {
+  background: #7a6e00;
+  color: #ffe;
+}
+.restos-siga-row .val-input {
+  background: transparent;
 }
