@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import * as XLSX from "xlsx";
 import { ENTITY_LABELS, type EntityType } from "@/auth/permissions";
 import { jsPDF } from "jspdf";
+import { gerarPdfRelatorio } from "@/components/scpc/pdfReport";
 import html2canvas from "html2canvas-pro";
 // municipios usados via tela de seleção; aqui o município vem locked.
 import { AltBlock, AdjustRow, CategoryChip, SistSigaDif, ValRow } from "@/components/scpc/Primitives";
@@ -496,6 +497,24 @@ export function ScpcApp() {
   };
 
   const handlePdf = async () => {
+    if (!currentId) {
+      toast.error("Nenhum registro carregado. Use Localizar primeiro.");
+      return;
+    }
+    setBusy(true);
+    const toastId = toast.info("Gerando PDF... Aguarde.");
+    try {
+      gerarPdfRelatorio(municipio, entidade, competencia, consolidado, tipo);
+      toast.dismiss(toastId);
+      toast.success("PDF gerado com sucesso!");
+    } catch (e: any) {
+      toast.error("Erro ao gerar PDF: " + e.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handlePdfLegado = async () => {
     if (!containerRef.current) return;
     setBusy(true);
     const toastId = toast.info("Gerando PDF com html2canvas-pro... Aguarde.");
