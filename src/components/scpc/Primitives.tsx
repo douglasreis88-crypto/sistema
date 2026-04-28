@@ -33,10 +33,19 @@ export function ValRow({ badge, label, id, readOnly, defaultValue = "" }: RowPro
   );
 }
 
-export function SistSigaDif({ prefix, badges = ["sist", "siga", "dif"] as const }: {
+export function SistSigaDif({ prefix, badges = ["sist", "siga", "dif"] as const, readOnlySist, readOnlySiga, readOnlyDif }: {
   prefix: string;
   badges?: ReadonlyArray<"sist" | "siga" | "dif" | "fix" | "dot">;
+  readOnlySist?: boolean;
+  readOnlySiga?: boolean;
+  readOnlyDif?: boolean;
 }) {
+  const isReadOnly = (b: string) => {
+    if (b === "sist") return readOnlySist ?? false;
+    if (b === "siga") return readOnlySiga ?? false;
+    if (b === "dif") return readOnlyDif ?? true;
+    return false;
+  };
   return (
     <>
       {badges.map((b) => (
@@ -44,7 +53,14 @@ export function SistSigaDif({ prefix, badges = ["sist", "siga", "dif"] as const 
           key={b}
           badge={b}
           id={`${prefix}_${b === "sist" ? "sistema" : b === "siga" ? "siga" : "dif"}`}
-          readOnly={b === "dif"}
+          readOnly={isReadOnly(b)}
+          title={
+            b === "siga" && readOnlySiga
+              ? "Calculado automaticamente"
+              : b === "sist" && readOnlySist
+              ? "Calculado automaticamente"
+              : undefined
+          }
         />
       ))}
     </>
