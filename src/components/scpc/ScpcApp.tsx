@@ -232,6 +232,10 @@ export function ScpcApp() {
       toast.error("Selecione Município e Entidade.");
       return;
     }
+    if (entidade.toUpperCase().includes("DESCENTRALIZ") && !nomeDesc.trim()) {
+      toast.error("Informe o Nome da Descentralizada antes de salvar.");
+      return;
+    }
     if (tipo === "mensal" && !competencia) {
       toast.error("Informe a Competência (AAAA/MM).");
       return;
