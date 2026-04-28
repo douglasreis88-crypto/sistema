@@ -101,23 +101,27 @@ const PREFIXES_AJUSTE = [
 
 // Restos a Pagar e Saldo Disponível (sec 2) - campos automáticos
 const recalcRestosSaldo = () => {
-  // SIGA de Restos a Pagar = Empenhado ANO SIGA + Pagamento ANO SIGA
+  // SIGA de Restos a Pagar = Empenhado ANO SIGA - Pagamento ANO SIGA
   const sigaEmpAno = v("emp_ano_siga");
   const sigaPagAno = v("pag_ano_siga");
-  const sigaRestos = sigaEmpAno + sigaPagAno;
+  const sigaRestos = sigaEmpAno - sigaPagAno;
 
-  // Aplica SIGA único nos dois campos (proc e naoproc) — exibe apenas em proc
+  // SIGA único exibido em proc_siga
   const elProcSiga = document.getElementById("proc_siga") as HTMLInputElement | null;
   if (elProcSiga) elProcSiga.value = fmtBR(sigaRestos);
 
-  // Zera naoproc_siga pois SIGA é unificado em proc_siga
-  const elNaoProcSiga = document.getElementById("naoproc_siga") as HTMLInputElement | null;
-  if (elNaoProcSiga) elNaoProcSiga.value = fmtBR(0);
-
-  // DIF Restos a Pagar = (Processado SIST + Não Processado SIST) - SIGA
+  // DIF = (Processado SIST + Não Processado SIST) - SIGA
   const sistTotal = v("proc_sistema") + v("naoproc_sistema");
-  setCalc("proc_dif", sistTotal - sigaRestos);
-  setCalc("naoproc_dif", 0); // dif do não processado zerado (unificado)
+  const difVal = sistTotal - sigaRestos;
+  const elDif = document.getElementById("proc_dif") as HTMLInputElement | null;
+  if (elDif) {
+    elDif.value = fmtBR(difVal);
+    if (Math.abs(difVal) < 0.005) {
+      elDif.classList.add("dif-ok"); elDif.classList.remove("dif-bad");
+    } else {
+      elDif.classList.add("dif-bad"); elDif.classList.remove("dif-ok");
+    }
+  }
 
   // SALDO DISPONÍVEL
   // SIST = Dotação SIST - Empenhado ANO SIST
