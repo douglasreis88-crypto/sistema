@@ -255,9 +255,25 @@ export function ScpcApp() {
         const rec = await saveConference(payload, user.id);
         setCurrentId(rec.id);
         toast.success("Registro salvo!");
+        // Atualiza navList automaticamente após salvar
+        const allRecs = await listConferences({
+          municipio: payload.municipio || undefined,
+          entidade: entidadeCompleta || undefined,
+        }) as { id: string }[];
+        const ids = allRecs.map((r) => r.id);
+        setNavList(ids);
+        setNavIndex(ids.indexOf(rec.id));
       } else if (editMode === "editing" && currentId) {
         await updateConference(currentId, payload);
         toast.success("Registro atualizado!");
+        // Atualiza navList após editar
+        const allRecs = await listConferences({
+          municipio: payload.municipio || undefined,
+          entidade: entidadeCompleta || undefined,
+        }) as { id: string }[];
+        const ids = allRecs.map((r) => r.id);
+        setNavList(ids);
+        setNavIndex(ids.indexOf(currentId));
       }
       
       setEditMode("viewing");
