@@ -304,11 +304,11 @@ export const gerarPdfRelatorio = (
   // Fixado e Dotação — grade SISTEMA/SIGA/DIF
   drawGrade(
     ["FIXADO","DOTAÇÃO"],
-    ["SISTEMA","SIGA","DIFERENÇA","SISTEMA","SIGA","DIFERENÇA"],
+    ["VALOR","VALOR"],
     [
-      { label: "SISTEMA", color: AZUL,  bg: BRANCO,    vals: [n("fix_sistema"), n("fix_siga"), n("fix_dif"), n("dot_sistema"), n("dot_siga"), n("dot_dif")] },
-      { label: "SIGA",    color: VERDE, bg: VERDE_CLR, vals: [n("fix_siga"),    "",            "",           n("dot_siga"),    "",           ""] },
-      { label: "DIF",     bg: AMAR_CLR, vals:          [n("fix_dif"),    "",            "",           n("dot_dif"),    "",           ""] },
+      { label: "SISTEMA", color: AZUL,  bg: BRANCO,    vals: [n("fix_sistema"), n("dot_sistema")] },
+      { label: "SIGA",    color: VERDE, bg: VERDE_CLR, vals: [n("fix_siga"),    n("dot_siga")] },
+      { label: "DIF",     bg: AMAR_CLR, vals:          [n("fix_dif"),    n("dot_dif")] },
     ], 28, false
   );
 
