@@ -236,31 +236,145 @@ export const gerarPdfRelatorio = (
   y += ROW_H + 2;
 
   // ══════════════════════════════
-  // SEÇÃO 2 — DESPESA
+  // SEÇÃO 2 — DESPESA (grade)
   // ══════════════════════════════
   drawSectionHeader("2. Despesa Orçamentária");
-  drawMesAnoRow("Empenhado", "emp_mes", "emp_ano");
-  drawMesAnoRow("Liquidado",  "liq_mes", "liq_ano");
-  drawMesAnoRow("Pagamento",  "pag_mes", "pag_ano");
 
-  // Restos a Pagar
-  checkY(ROW_H * 3);
+  // Layout da grade:
+  // Colunas: Label(30) | Emp.Mês | Emp.Ano | Liq.Mês | Liq.Ano | Pag.Mês | Pag.Ano
+  const GLABEL = 28;
+  const GW = (PW - M * 2 - GLABEL) / 6;
+  const GH = 5.5;
+  const gx = M;
+
+  checkY(GH * 4 + 4);
+
+  // Cabeçalho nível 1: grupos
+  pdf.setFillColor(...AZUL);
+  pdf.rect(gx + GLABEL, y, GW * 2, GH, "F");
+  pdf.rect(gx + GLABEL + GW * 2, y, GW * 2, GH, "F");
+  pdf.rect(gx + GLABEL + GW * 4, y, GW * 2, GH, "F");
+  pdf.setTextColor(...BRANCO);
+  pdf.setFontSize(7.5);
+  pdf.setFont("helvetica", "bold");
+  pdf.text("EMPENHADO", gx + GLABEL + GW * 1, y + 3.8, { align: "center" });
+  pdf.text("LIQUIDADO",  gx + GLABEL + GW * 3, y + 3.8, { align: "center" });
+  pdf.text("PAGAMENTO",  gx + GLABEL + GW * 5, y + 3.8, { align: "center" });
+  // bordas verticais entre grupos
+  pdf.setDrawColor(255,255,255);
+  pdf.line(gx + GLABEL + GW * 2, y, gx + GLABEL + GW * 2, y + GH);
+  pdf.line(gx + GLABEL + GW * 4, y, gx + GLABEL + GW * 4, y + GH);
+  y += GH;
+
+  // Cabeçalho nível 2: Mês / Ano
+  pdf.setFillColor(...AZUL_CLR);
+  pdf.rect(gx, y, PW - M * 2, GH, "F");
+  pdf.setTextColor(...AZUL);
+  pdf.setFontSize(7);
+  pdf.setFont("helvetica", "bold");
+  // label vazio
+  const cols2 = ["Mês","Ano","Mês","Ano","Mês","Ano"];
+  cols2.forEach((c, i) => {
+    pdf.text(c, gx + GLABEL + GW * i + GW / 2, y + 3.8, { align: "center" });
+  });
+  pdf.setDrawColor(180, 200, 240);
+  for (let i = 1; i <= 6; i++) pdf.line(gx + GLABEL + GW * i, y, gx + GLABEL + GW * i, y + GH);
+  y += GH;
+
+  // Linhas: SISTEMA, SIGA, DIF
+  const gRows = [
+    { label: "SISTEMA", vals: [
+      n("emp_mes_sistema"), n("emp_ano_sistema"),
+      n("liq_mes_sistema"), n("liq_ano_sistema"),
+      n("pag_mes_sistema"), n("pag_ano_sistema"),
+    ], color: AZUL, bg: BRANCO },
+    { label: "SIGA", vals: [
+      n("emp_mes_siga"), n("emp_ano_siga"),
+      n("liq_mes_siga"), n("liq_ano_siga"),
+      n("pag_mes_siga"), n("pag_ano_siga"),
+    ], color: VERDE, bg: VERDE_CLR },
+    { label: "DIF", vals: [
+      n("emp_mes_dif"), n("emp_ano_dif"),
+      n("liq_mes_dif"), n("liq_ano_dif"),
+      n("pag_mes_dif"), n("pag_ano_dif"),
+    ], color: AMAR, bg: AMAR_CLR },
+  ];
+
+  gRows.forEach(row => {
+    checkY(GH);
+    pdf.setFillColor(...row.bg);
+    pdf.rect(gx, y, PW - M * 2, GH, "F");
+    pdf.setTextColor(...CINZA);
+    pdf.setFontSize(7.5);
+    pdf.setFont("helvetica", "bold");
+    pdf.text(row.label, gx + 2, y + 3.8);
+    row.vals.forEach((val, i) => {
+      const num = parseFloat(val.replace(/\./g, "").replace(",", "."));
+      if (row.label === "DIF") {
+        pdf.setTextColor(Math.abs(num) < 0.01 ? 60 : 180, Math.abs(num) < 0.01 ? 140 : 30, Math.abs(num) < 0.01 ? 60 : 30);
+      } else {
+        pdf.setTextColor(...row.color);
+      }
+      pdf.text(val, gx + GLABEL + GW * i + GW - 1, y + 3.8, { align: "right" });
+    });
+    pdf.setDrawColor(200, 200, 200);
+    pdf.line(gx, y + GH, gx + PW - M * 2, y + GH);
+    for (let i = 1; i <= 6; i++) pdf.line(gx + GLABEL + GW * i, y, gx + GLABEL + GW * i, y + GH);
+    y += GH;
+  });
+
+  y += 3;
+
+  // Restos a Pagar — grade simples
+  checkY(GH * 4);
+  pdf.setFillColor(...CINZA);
+  pdf.rect(M, y, PW - M * 2, GH, "F");
+  pdf.setTextColor(...BRANCO);
+  pdf.setFontSize(7.5);
+  pdf.setFont("helvetica", "bold");
+  pdf.text("RESTOS A PAGAR", M + 2, y + 3.8);
+  y += GH;
+
+  // cabeçalho restos
   pdf.setFillColor(...CINZA_CLR);
-  pdf.rect(M, y, PW - M * 2, ROW_H, "F");
+  pdf.rect(M, y, PW - M * 2, GH, "F");
+  pdf.setTextColor(...CINZA);
+  pdf.setFontSize(7);
+  const RCW = (PW - M * 2 - GLABEL) / 3;
+  pdf.text("PROCESSADO (SIST.)", M + GLABEL + RCW * 0.5, y + 3.8, { align: "center" });
+  pdf.text("NÃO PROCESSADO (SIST.)", M + GLABEL + RCW * 1.5, y + 3.8, { align: "center" });
+  pdf.text("SIGA (Emp.Ano − Pag.Ano)", M + GLABEL + RCW * 2.5, y + 3.8, { align: "center" });
+  y += GH;
+
+  // valores restos
+  pdf.setFillColor(...BRANCO);
+  pdf.rect(M, y, PW - M * 2, GH, "F");
+  pdf.setTextColor(...AZUL);
+  pdf.setFontSize(7.5);
+  pdf.setFont("helvetica", "bold");
+  pdf.text(n("proc_sistema"),   M + GLABEL + RCW * 0.95, y + 3.8, { align: "right" });
+  pdf.text(n("naoproc_sistema"),M + GLABEL + RCW * 1.95, y + 3.8, { align: "right" });
+  pdf.setTextColor(...VERDE);
+  pdf.text(n("proc_siga"),      M + GLABEL + RCW * 2.95, y + 3.8, { align: "right" });
+  y += GH;
+
+  // DIF restos amarelo
+  pdf.setFillColor(...AMAR_CLR);
+  pdf.rect(M, y, PW - M * 2, GH, "F");
   pdf.setTextColor(...CINZA);
   pdf.setFontSize(7);
   pdf.setFont("helvetica", "bold");
-  pdf.text("RESTOS A PAGAR", M + 2, y + 3.8);
-  y += ROW_H;
-  drawRow("Processado (SIST.)",     n("proc_sistema"),     "—", "—");
-  drawRow("Não Processado (SIST.)", n("naoproc_sistema"),  "—", "—", true);
-  drawRow("SIGA (Emp.Ano − Pag.Ano)", "—", n("proc_siga"), "—");
-  drawRow("DIF Restos a Pagar",     n("proc_sistema") + " + " + n("naoproc_sistema"), n("proc_siga"), n("proc_dif"), true);
+  pdf.text("DIF", M + 2, y + 3.8);
+  const difRest = parseFloat(n("proc_dif").replace(/\./g, "").replace(",", "."));
+  pdf.setTextColor(Math.abs(difRest) < 0.01 ? 60 : 180, Math.abs(difRest) < 0.01 ? 140 : 30, Math.abs(difRest) < 0.01 ? 60 : 30);
+  pdf.setFontSize(7.5);
+  pdf.text(n("proc_dif"), M + GLABEL + RCW * 1.95, y + 3.8, { align: "right" });
+  y += GH + 2;
 
   // Saldo Disponível
-  checkY(ROW_H * 2);
+  checkY(GH * 2);
   pdf.setFillColor(...AMAR_CLR);
-  pdf.rect(M, y, PW - M * 2, ROW_H, "F");
+  pdf.rect(M, y, PW - M * 2, GH, "F");
   pdf.setTextColor(100, 60, 0);
   pdf.setFontSize(7.5);
   pdf.setFont("helvetica", "bold");
@@ -273,7 +387,7 @@ export const gerarPdfRelatorio = (
   const difSaldo = parseFloat(n("saldo_disp_dif").replace(/\./g, "").replace(",", "."));
   pdf.setTextColor(Math.abs(difSaldo) < 0.01 ? 60 : 180, Math.abs(difSaldo) < 0.01 ? 140 : 30, Math.abs(difSaldo) < 0.01 ? 60 : 30);
   pdf.text(n("saldo_disp_dif"),     x0s + COL_W * 2.95, y + 3.8, { align: "right" });
-  y += ROW_H + 2;
+  y += GH + 2;
 
   // ══════════════════════════════
   // SEÇÃO 3 — RAZÃO
