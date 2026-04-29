@@ -302,17 +302,14 @@ export const gerarPdfRelatorio = (
   drawColHeaders();
   drawRow("Valor Fixado", n("fix_sistema"), n("fix_siga"), n("fix_dif"));
 
-  // Dotação com destaque
+  // Dotação com destaque (sem texto, só valores)
   checkY(ROW_H);
   pdf.setFillColor(...AMAR_CLR);
   pdf.rect(M, y, PW - M * 2, ROW_H, "F");
-  pdf.setTextColor(...AMAR);
+  const x0dot = M + COL_LABEL;
+  pdf.setTextColor(...AZUL);
   pdf.setFontSize(7.5);
   pdf.setFont("helvetica", "bold");
-  const x0dot = M + COL_LABEL;
-  pdf.setTextColor(100, 60, 0);
-  pdf.text("◆ DOTAÇÃO (calculada)", M + 2, y + 3.8);
-  pdf.setTextColor(...AZUL);
   pdf.text(n("dot_sistema"), x0dot + COL_W * 0.95, y + 3.8, { align: "right" });
   pdf.setTextColor(...VERDE);
   pdf.text(n("dot_siga"),    x0dot + COL_W * 1.95, y + 3.8, { align: "right" });
@@ -408,62 +405,32 @@ export const gerarPdfRelatorio = (
 
   y += 3;
 
-  // Restos a Pagar — grade simples
-  checkY(GH * 4);
+  // Restos a Pagar — grade SISTEMA/SIGA/DIF
+  drawGrade(
+    ["PROCESSADO","NÃO PROCESSADO","SIGA"],
+    ["VALOR","VALOR","VALOR"],
+    [
+      { label: "SISTEMA", color: AZUL,  bg: BRANCO,    vals: [n("proc_sistema"), n("naoproc_sistema"), ""] },
+      { label: "SIGA",    color: VERDE, bg: VERDE_CLR, vals: ["", "", n("proc_siga")] },
+      { label: "DIF",     bg: AMAR_CLR, vals: [n("proc_dif"), "", ""] },
+    ]
+  );
+
+  // Saldo Disponível — com label
+  checkY(GH * 2);
   pdf.setFillColor(...CINZA);
   pdf.rect(M, y, PW - M * 2, GH, "F");
   pdf.setTextColor(...BRANCO);
   pdf.setFontSize(7.5);
   pdf.setFont("helvetica", "bold");
-  pdf.text("RESTOS A PAGAR", M + 2, y + 3.8);
+  pdf.text("SALDO DISPONÍVEL", M + 2, y + 3.8);
   y += GH;
-
-  // cabeçalho restos
-  pdf.setFillColor(...CINZA_CLR);
-  pdf.rect(M, y, PW - M * 2, GH, "F");
-  pdf.setTextColor(...CINZA);
-  pdf.setFontSize(7);
-  const RCW = (PW - M * 2 - GLABEL) / 3;
-  pdf.text("PROCESSADO (SIST.)", M + GLABEL + RCW * 0.5, y + 3.8, { align: "center" });
-  pdf.text("NÃO PROCESSADO (SIST.)", M + GLABEL + RCW * 1.5, y + 3.8, { align: "center" });
-  pdf.text("SIGA (Emp.Ano − Pag.Ano)", M + GLABEL + RCW * 2.5, y + 3.8, { align: "center" });
-  y += GH;
-
-  // valores restos
-  pdf.setFillColor(...BRANCO);
-  pdf.rect(M, y, PW - M * 2, GH, "F");
-  pdf.setTextColor(...AZUL);
-  pdf.setFontSize(7.5);
-  pdf.setFont("helvetica", "bold");
-  pdf.text(n("proc_sistema"),   M + GLABEL + RCW * 0.95, y + 3.8, { align: "right" });
-  pdf.text(n("naoproc_sistema"),M + GLABEL + RCW * 1.95, y + 3.8, { align: "right" });
-  pdf.setTextColor(...VERDE);
-  pdf.text(n("proc_siga"),      M + GLABEL + RCW * 2.95, y + 3.8, { align: "right" });
-  y += GH;
-
-  // DIF restos amarelo
   pdf.setFillColor(...AMAR_CLR);
   pdf.rect(M, y, PW - M * 2, GH, "F");
-  pdf.setTextColor(...CINZA);
-  pdf.setFontSize(7);
-  pdf.setFont("helvetica", "bold");
-  pdf.text("DIF", M + 2, y + 3.8);
-  const difRest = parseFloat(n("proc_dif").replace(/\./g, "").replace(",", "."));
-  pdf.setTextColor(Math.abs(difRest) < 0.01 ? 60 : 180, Math.abs(difRest) < 0.01 ? 140 : 30, Math.abs(difRest) < 0.01 ? 60 : 30);
-  pdf.setFontSize(7.5);
-  pdf.text(n("proc_dif"), M + GLABEL + RCW * 1.95, y + 3.8, { align: "right" });
-  y += GH + 2;
-
-  // Saldo Disponível
-  checkY(GH * 2);
-  pdf.setFillColor(...AMAR_CLR);
-  pdf.rect(M, y, PW - M * 2, GH, "F");
-  pdf.setTextColor(100, 60, 0);
-  pdf.setFontSize(7.5);
-  pdf.setFont("helvetica", "bold");
-  pdf.text("◆ SALDO DISPONÍVEL", M + 2, y + 3.8);
   const x0s = M + COL_LABEL;
   pdf.setTextColor(...AZUL);
+  pdf.setFontSize(7.5);
+  pdf.setFont("helvetica", "bold");
   pdf.text(n("saldo_disp_sistema"), x0s + COL_W * 0.95, y + 3.8, { align: "right" });
   pdf.setTextColor(...VERDE);
   pdf.text(n("saldo_disp_siga"),    x0s + COL_W * 1.95, y + 3.8, { align: "right" });
