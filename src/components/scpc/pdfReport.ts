@@ -209,15 +209,17 @@ export const gerarPdfRelatorio = (
 
   // Helper: desenha grade genérica
   const drawGrade = (
-    grupos: string[],        // ex: ["ALTERAÇÃO DE QDD","CRÉDITOS ADICIONAIS"]
-    subCols: string[],       // ex: ["Mês","Ano","Mês","Ano"]
+    grupos: string[],
+    subCols: string[],
     rows: { label: string; vals: string[]; bg?: readonly [number,number,number]; color?: readonly [number,number,number] }[],
-    labelW = 28
+    labelW = 28,
+    showSubCols = true
   ) => {
     const ncols = subCols.length;
     const GW2 = (PW - M * 2 - labelW) / ncols;
     const colsPerGrupo = Math.floor(ncols / grupos.length);
-    checkY(GH * (2 + rows.length) + 4);
+    const totalRows = showSubCols ? 2 + rows.length : 1 + rows.length;
+    checkY(GH * totalRows + 4);
 
     // Nível 1: grupos
     pdf.setFontSize(7.5); pdf.setFont("helvetica","bold");
@@ -227,21 +229,22 @@ export const gerarPdfRelatorio = (
       pdf.setTextColor(...BRANCO);
       pdf.text(g, M + labelW + gi * colsPerGrupo * GW2 + colsPerGrupo * GW2 / 2, y + 3.8, { align: "center" });
     });
-    // célula label vazia
     pdf.setFillColor(...CINZA_CLR);
     pdf.rect(M, y, labelW, GH, "F");
     y += GH;
 
-    // Nível 2: subCols
-    pdf.setFillColor(...AZUL_CLR);
-    pdf.rect(M, y, PW - M * 2, GH, "F");
-    pdf.setTextColor(...AZUL); pdf.setFontSize(7); pdf.setFont("helvetica","bold");
-    subCols.forEach((c, i) => {
-      pdf.text(c, M + labelW + i * GW2 + GW2 / 2, y + 3.8, { align: "center" });
-    });
-    pdf.setDrawColor(180,200,240);
-    for (let i = 1; i <= ncols; i++) pdf.line(M + labelW + i * GW2, y, M + labelW + i * GW2, y + GH);
-    y += GH;
+    // Nível 2: subCols (opcional)
+    if (showSubCols) {
+      pdf.setFillColor(...AZUL_CLR);
+      pdf.rect(M, y, PW - M * 2, GH, "F");
+      pdf.setTextColor(...AZUL); pdf.setFontSize(7); pdf.setFont("helvetica","bold");
+      subCols.forEach((c, i) => {
+        pdf.text(c, M + labelW + i * GW2 + GW2 / 2, y + 3.8, { align: "center" });
+      });
+      pdf.setDrawColor(180,200,240);
+      for (let i = 1; i <= ncols; i++) pdf.line(M + labelW + i * GW2, y, M + labelW + i * GW2, y + GH);
+      y += GH;
+    }
 
     // Linhas
     rows.forEach(row => {
@@ -306,7 +309,7 @@ export const gerarPdfRelatorio = (
       { label: "SISTEMA", color: AZUL,  bg: BRANCO,    vals: [n("fix_sistema"), n("fix_siga"), n("fix_dif"), n("dot_sistema"), n("dot_siga"), n("dot_dif")] },
       { label: "SIGA",    color: VERDE, bg: VERDE_CLR, vals: [n("fix_siga"),    "",            "",           n("dot_siga"),    "",           ""] },
       { label: "DIF",     bg: AMAR_CLR, vals:          [n("fix_dif"),    "",            "",           n("dot_dif"),    "",           ""] },
-    ]
+    ], 28, false
   );
 
   // ══════════════════════════════
@@ -404,7 +407,7 @@ export const gerarPdfRelatorio = (
       { label: "SISTEMA", color: AZUL,  bg: BRANCO,    vals: [n("proc_sistema"), n("naoproc_sistema"), ""] },
       { label: "SIGA",    color: VERDE, bg: VERDE_CLR, vals: ["", "", n("proc_siga")] },
       { label: "DIF",     bg: AMAR_CLR, vals: ["", "", n("proc_dif")] },
-    ]
+    ], 28, false
   );
 
   // Saldo Disponível — grade SISTEMA/SIGA/DIF
@@ -416,7 +419,7 @@ export const gerarPdfRelatorio = (
       { label: "SISTEMA", color: AZUL,  bg: BRANCO,    vals: [n("saldo_disp_sistema"), "", ""] },
       { label: "SIGA",    color: VERDE, bg: VERDE_CLR, vals: ["", n("saldo_disp_siga"), ""] },
       { label: "DIF",     bg: AMAR_CLR, vals: ["", "", n("saldo_disp_dif")] },
-    ]
+    ], 28, false
   );
 
   // ══════════════════════════════
@@ -459,7 +462,7 @@ export const gerarPdfRelatorio = (
       { label: "SISTEMA", color: AZUL,  bg: BRANCO,    vals: [n("conc_sistema")] },
       { label: "SIGA",    color: VERDE, bg: VERDE_CLR, vals: [n("conc_siga")] },
       { label: "DIF",     bg: AMAR_CLR, vals: [n("conc_dif")] },
-    ]
+    ], 28, false
   );
 
   // ══════════════════════════════
@@ -473,7 +476,7 @@ export const gerarPdfRelatorio = (
       { label: "SISTEMA", color: AZUL,  bg: BRANCO,    vals: [n("mov_cred_sistema"), n("mov_deb_sistema")] },
       { label: "SIGA",    color: VERDE, bg: VERDE_CLR, vals: [n("mov_cred_siga"),    n("mov_deb_siga")] },
       { label: "DIF",     bg: AMAR_CLR, vals: [n("mov_cred_dif"),    n("mov_deb_dif")] },
-    ]
+    ], 28, false
   );
 
   // ══════════════════════════════
@@ -502,7 +505,7 @@ export const gerarPdfRelatorio = (
       { label: "SISTEMA", color: AZUL,  bg: BRANCO,    vals: [n("rec_fix_sistema"), "", ""] },
       { label: "SIGA",    color: VERDE, bg: VERDE_CLR, vals: ["", n("rec_fix_siga"), ""] },
       { label: "DIF",     bg: AMAR_CLR, vals: ["", "", n("rec_fix_dif")] },
-    ]
+    ], 28, false
   );
   drawGrade(
     ["MÊS","ANO","PARA MAIS","PARA MENOS"],
