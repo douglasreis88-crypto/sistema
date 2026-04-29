@@ -502,30 +502,30 @@ export const gerarPdfRelatorio = (
   );
 
   // ══════════════════════════════
-  // SEÇÃO 4 — CONCILIAÇÃO BANCÁRIA
+  // SEÇÃO 4 — CONCILIAÇÃO BANCÁRIA (1 coluna)
   // ══════════════════════════════
   drawSectionHeader("4. Conciliação Bancária");
   drawGrade(
     ["CONCILIAÇÃO"],
-    ["Mês","Ano"],
+    ["VALOR"],
     [
-      { label: "SISTEMA", color: AZUL,  bg: BRANCO,    vals: [n("conc_mes_sistema"), n("conc_ano_sistema")] },
-      { label: "SIGA",    color: VERDE, bg: VERDE_CLR, vals: [n("conc_mes_siga"),    n("conc_ano_siga")] },
-      { label: "DIF",     bg: AMAR_CLR, vals: [n("conc_mes_dif"),    n("conc_ano_dif")] },
+      { label: "SISTEMA", color: AZUL,  bg: BRANCO,    vals: [n("conc_sistema")] },
+      { label: "SIGA",    color: VERDE, bg: VERDE_CLR, vals: [n("conc_siga")] },
+      { label: "DIF",     bg: AMAR_CLR, vals: [n("conc_dif")] },
     ]
   );
 
   // ══════════════════════════════
-  // SEÇÃO 5 — MOVIMENTAÇÃO BANCÁRIA
+  // SEÇÃO 5 — MOVIMENTAÇÃO BANCÁRIA (2 colunas)
   // ══════════════════════════════
   drawSectionHeader("5. Movimentação Bancária");
   drawGrade(
     ["CRÉDITO","DÉBITO"],
-    ["Mês","Ano","Mês","Ano"],
+    ["VALOR","VALOR"],
     [
-      { label: "SISTEMA", color: AZUL,  bg: BRANCO,    vals: [n("mov_cred_mes_sistema"), n("mov_cred_ano_sistema"), n("mov_deb_mes_sistema"), n("mov_deb_ano_sistema")] },
-      { label: "SIGA",    color: VERDE, bg: VERDE_CLR, vals: [n("mov_cred_mes_siga"),    n("mov_cred_ano_siga"),    n("mov_deb_mes_siga"),    n("mov_deb_ano_siga")] },
-      { label: "DIF",     bg: AMAR_CLR, vals: [n("mov_cred_mes_dif"),    n("mov_cred_ano_dif"),    n("mov_deb_mes_dif"),    n("mov_deb_ano_dif")] },
+      { label: "SISTEMA", color: AZUL,  bg: BRANCO,    vals: [n("mov_cred_sistema"), n("mov_deb_sistema")] },
+      { label: "SIGA",    color: VERDE, bg: VERDE_CLR, vals: [n("mov_cred_siga"),    n("mov_deb_siga")] },
+      { label: "DIF",     bg: AMAR_CLR, vals: [n("mov_cred_dif"),    n("mov_deb_dif")] },
     ]
   );
 
@@ -544,23 +544,20 @@ export const gerarPdfRelatorio = (
   );
 
   // ══════════════════════════════
-  // SEÇÃO 7 — RECEITA
+  // SEÇÃO 7 — RECEITA (Mês | Ano | Para Mais | Para Menos)
   // ══════════════════════════════
   drawSectionHeader("7. Receita");
   drawColHeaders();
   drawRow("Receita Fixada", n("rec_fix_sistema"), n("rec_fix_siga"), n("rec_fix_dif"));
   drawGrade(
-    ["RECEITA MÊS","RECEITA ANO"],
-    ["Mês","Ano","Mês","Ano"],
+    ["MÊS","ANO","PARA MAIS","PARA MENOS"],
+    ["VALOR","VALOR","VALOR","VALOR"],
     [
-      { label: "SISTEMA", color: AZUL,  bg: BRANCO,    vals: [n("rec_mes_sistema"), n("rec_mes_sistema"), n("rec_ano_sistema"), n("rec_ano_sistema")] },
-      { label: "SIGA",    color: VERDE, bg: VERDE_CLR, vals: [n("rec_mes_siga"),    n("rec_mes_siga"),    n("rec_ano_siga"),    n("rec_ano_siga")] },
-      { label: "DIF",     bg: AMAR_CLR, vals: [n("rec_mes_dif"),    n("rec_mes_dif"),    n("rec_ano_dif"),    n("rec_ano_dif")] },
+      { label: "SISTEMA", color: AZUL,  bg: BRANCO,    vals: [n("rec_mes_sistema"), n("rec_ano_sistema"), n("rec_mais_sist"),  n("rec_menos_sist")] },
+      { label: "SIGA",    color: VERDE, bg: VERDE_CLR, vals: [n("rec_mes_siga"),    n("rec_ano_siga"),    n("rec_mais_siga"),  n("rec_menos_siga")] },
+      { label: "DIF",     bg: AMAR_CLR, vals: [n("rec_mes_dif"),    n("rec_ano_dif"),    n("rec_mais_dif"),   n("rec_menos_dif")] },
     ]
   );
-  drawColHeaders();
-  drawRow("Para Mais",  n("rec_mais_sist"),  n("rec_mais_siga"),  n("rec_mais_dif"),  true);
-  drawRow("Para Menos", n("rec_menos_sist"), n("rec_menos_siga"), n("rec_menos_dif"));
 
   // ── Rodapé em todas as páginas ──
   const totalPages = pdf.getNumberOfPages();
