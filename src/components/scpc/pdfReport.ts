@@ -414,11 +414,11 @@ export const gerarPdfRelatorio = (
   drawSectionHeader("Saldo Disponível");
   drawGrade(
     ["SALDO DISPONÍVEL"],
-    ["SISTEMA","SIGA","DIFERENÇA"],
+    ["VALOR"],
     [
-      { label: "SISTEMA", color: AZUL,  bg: BRANCO,    vals: [n("saldo_disp_sistema"), "", ""] },
-      { label: "SIGA",    color: VERDE, bg: VERDE_CLR, vals: ["", n("saldo_disp_siga"), ""] },
-      { label: "DIF",     bg: AMAR_CLR, vals: ["", "", n("saldo_disp_dif")] },
+      { label: "SISTEMA", color: AZUL,  bg: BRANCO,    vals: [n("saldo_disp_sistema")] },
+      { label: "SIGA",    color: VERDE, bg: VERDE_CLR, vals: [n("saldo_disp_siga")] },
+      { label: "DIF",     bg: AMAR_CLR, vals: [n("saldo_disp_dif")] },
     ], 28, false
   );
 
