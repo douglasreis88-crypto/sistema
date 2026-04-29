@@ -36,6 +36,16 @@ function SelecaoPage() {
     navigate({ to: "/login" });
   };
 
+  const handleVoltar = () => {
+    // Só volta se já tiver uma seleção ativa salva
+    const temSelecao = sessionStorage.getItem("scpc_sel_entidade") && sessionStorage.getItem("scpc_sel_municipio");
+    if (temSelecao) {
+      navigate({ to: "/" });
+    } else {
+      toast.info("Nenhuma seleção anterior para voltar.");
+    }
+  };
+
   const isDouglas = user?.email?.toLowerCase() === "douglasreis88@gmail.com";
   const semAcesso = !permissionsLoading && permissions.entidades.length === 0 && !isAdmin && !isDouglas;
   const displayName = (fullName || user?.email || "USUÁRIO").toUpperCase();
@@ -121,6 +131,16 @@ function SelecaoPage() {
           >
             ← Sair
           </button>
+          {sessionStorage.getItem("scpc_sel_entidade") && (
+            <button
+              type="button"
+              className="auth-link"
+              onClick={handleVoltar}
+              style={{ background: "none", border: "none", cursor: "pointer", marginTop: 8 }}
+            >
+              ↩ Voltar
+            </button>
+          )}
         </div>
       </div>
     </div>
