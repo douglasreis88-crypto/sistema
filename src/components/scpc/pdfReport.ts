@@ -202,19 +202,98 @@ export const gerarPdfRelatorio = (
   };
 
   // ══════════════════════════════
-  // SEÇÃO 1 — ORÇAMENTO
+  // SEÇÃO 1 — ORÇAMENTO (grade)
   // ══════════════════════════════
   drawSectionHeader("1. Orçamento");
+
+  // Helper: desenha grade genérica
+  const drawGrade = (
+    grupos: string[],        // ex: ["ALTERAÇÃO DE QDD","CRÉDITOS ADICIONAIS"]
+    subCols: string[],       // ex: ["Mês","Ano","Mês","Ano"]
+    rows: { label: string; vals: string[]; bg?: readonly [number,number,number]; color?: readonly [number,number,number] }[],
+    labelW = 28
+  ) => {
+    const ncols = subCols.length;
+    const GW2 = (PW - M * 2 - labelW) / ncols;
+    const colsPerGrupo = Math.floor(ncols / grupos.length);
+    checkY(GH * (2 + rows.length) + 4);
+
+    // Nível 1: grupos
+    pdf.setFontSize(7.5); pdf.setFont("helvetica","bold");
+    grupos.forEach((g, gi) => {
+      pdf.setFillColor(...AZUL);
+      pdf.rect(M + labelW + gi * colsPerGrupo * GW2, y, colsPerGrupo * GW2, GH, "F");
+      pdf.setTextColor(...BRANCO);
+      pdf.text(g, M + labelW + gi * colsPerGrupo * GW2 + colsPerGrupo * GW2 / 2, y + 3.8, { align: "center" });
+    });
+    // célula label vazia
+    pdf.setFillColor(...CINZA_CLR);
+    pdf.rect(M, y, labelW, GH, "F");
+    y += GH;
+
+    // Nível 2: subCols
+    pdf.setFillColor(...AZUL_CLR);
+    pdf.rect(M, y, PW - M * 2, GH, "F");
+    pdf.setTextColor(...AZUL); pdf.setFontSize(7); pdf.setFont("helvetica","bold");
+    subCols.forEach((c, i) => {
+      pdf.text(c, M + labelW + i * GW2 + GW2 / 2, y + 3.8, { align: "center" });
+    });
+    pdf.setDrawColor(180,200,240);
+    for (let i = 1; i <= ncols; i++) pdf.line(M + labelW + i * GW2, y, M + labelW + i * GW2, y + GH);
+    y += GH;
+
+    // Linhas
+    rows.forEach(row => {
+      checkY(GH);
+      const bg = row.bg ?? BRANCO;
+      pdf.setFillColor(...bg);
+      pdf.rect(M, y, PW - M * 2, GH, "F");
+      pdf.setTextColor(...CINZA); pdf.setFontSize(7.5); pdf.setFont("helvetica","bold");
+      pdf.text(row.label, M + 2, y + 3.8);
+      row.vals.forEach((val, i) => {
+        const num = parseFloat(val.replace(/\./g,"").replace(",","."));
+        const isDif = row.label === "DIF";
+        if (isDif) {
+          pdf.setTextColor(Math.abs(num) < 0.01 ? 60 : 180, Math.abs(num) < 0.01 ? 140 : 30, Math.abs(num) < 0.01 ? 60 : 30);
+        } else {
+          pdf.setTextColor(...(row.color ?? PRETO));
+        }
+        pdf.text(val, M + labelW + i * GW2 + GW2 - 1, y + 3.8, { align: "right" });
+      });
+      pdf.setDrawColor(200,200,200);
+      pdf.line(M, y + GH, M + PW - M * 2, y + GH);
+      for (let i = 1; i <= ncols; i++) pdf.line(M + labelW + i * GW2, y, M + labelW + i * GW2, y + GH);
+      y += GH;
+    });
+    y += 2;
+  };
+
+  // Grade Orçamento: FIXADO | Alt.QDD Mês | Anulação QDD Mês | Créd.Adic. Mês | Anu.Créd. Mês | DOTAÇÃO
+  // Linha MÊS
+  drawGrade(
+    ["ALTERAÇÃO DE QDD","CRÉDITOS ADICIONAIS"],
+    ["Acréscimo Mês","Redução Mês","Acréscimo Mês","Redução Mês"],
+    [
+      { label: "SISTEMA", color: AZUL, vals: [n("alt_mes_qdd_sistema"), n("alt_mes_qdd2_sistema"), n("alt_mes_cred_sistema"), n("alt_mes_cred2_sistema")] },
+      { label: "SIGA",    color: VERDE, bg: VERDE_CLR, vals: [n("alt_mes_qdd_siga"), n("alt_mes_qdd2_siga"), n("alt_mes_cred_siga"), n("alt_mes_cred2_siga")] },
+      { label: "DIF",     bg: AMAR_CLR, vals: [n("alt_mes_qdd_dif"), n("alt_mes_qdd2_dif"), n("alt_mes_cred_dif"), n("alt_mes_cred2_dif")] },
+    ]
+  );
+
+  // Linha ANO
+  drawGrade(
+    ["ALTERAÇÃO DE QDD","CRÉDITOS ADICIONAIS"],
+    ["Acréscimo Ano","Redução Ano","Acréscimo Ano","Redução Ano"],
+    [
+      { label: "SISTEMA", color: AZUL, vals: [n("alt_ano_qdd_sistema"), n("alt_ano_qdd2_sistema"), n("alt_ano_cred_sistema"), n("alt_ano_cred2_sistema")] },
+      { label: "SIGA",    color: VERDE, bg: VERDE_CLR, vals: [n("alt_ano_qdd_siga"), n("alt_ano_qdd2_siga"), n("alt_ano_cred_siga"), n("alt_ano_cred2_siga")] },
+      { label: "DIF",     bg: AMAR_CLR, vals: [n("alt_ano_qdd_dif"), n("alt_ano_qdd2_dif"), n("alt_ano_cred_dif"), n("alt_ano_cred2_dif")] },
+    ]
+  );
+
+  // Fixado e Dotação
   drawColHeaders();
-  drawRow("Valor Fixado", n("fix_sistema"), n("fix_siga"), n("fix_dif"), false);
-  drawRow("Alt. QDD — Mês",        n("alt_mes_qdd_sistema"),  n("alt_mes_qdd_siga"),  n("alt_mes_qdd_dif"), true);
-  drawRow("Anulação QDD — Mês",    n("alt_mes_qdd2_sistema"), n("alt_mes_qdd2_siga"), n("alt_mes_qdd2_dif"));
-  drawRow("Créd. Adicionais — Mês",n("alt_mes_cred_sistema"), n("alt_mes_cred_siga"), n("alt_mes_cred_dif"), true);
-  drawRow("Anulação Créd. — Mês",  n("alt_mes_cred2_sistema"),n("alt_mes_cred2_siga"),n("alt_mes_cred2_dif"));
-  drawRow("Alt. QDD — Ano",        n("alt_ano_qdd_sistema"),  n("alt_ano_qdd_siga"),  n("alt_ano_qdd_dif"), true);
-  drawRow("Anulação QDD — Ano",    n("alt_ano_qdd2_sistema"), n("alt_ano_qdd2_siga"), n("alt_ano_qdd2_dif"));
-  drawRow("Créd. Adicionais — Ano",n("alt_ano_cred_sistema"), n("alt_ano_cred_siga"), n("alt_ano_cred_dif"), true);
-  drawRow("Anulação Créd. — Ano",  n("alt_ano_cred2_sistema"),n("alt_ano_cred2_siga"),n("alt_ano_cred2_dif"));
+  drawRow("Valor Fixado", n("fix_sistema"), n("fix_siga"), n("fix_dif"));
 
   // Dotação com destaque
   checkY(ROW_H);
@@ -390,50 +469,95 @@ export const gerarPdfRelatorio = (
   y += GH + 2;
 
   // ══════════════════════════════
-  // SEÇÃO 3 — RAZÃO
+  // SEÇÃO 3 — RAZÃO (grade)
   // ══════════════════════════════
   drawSectionHeader("3. Razão");
-  drawColHeaders();
-  drawRow("Devedor — Mês",      n("raz_desp_mes_sistema"), n("raz_desp_mes_siga"), n("raz_desp_mes_dif"));
-  drawRow("Devedor — Ano",      n("raz_desp_ano_sistema"), n("raz_desp_ano_siga"), n("raz_desp_ano_dif"), true);
-  drawRow("Credor — Mês",       n("raz_rec_mes_sistema"),  n("raz_rec_mes_siga"),  n("raz_rec_mes_dif"));
-  drawRow("Credor — Ano",       n("raz_rec_ano_sistema"),  n("raz_rec_ano_siga"),  n("raz_rec_ano_dif"), true);
-  drawRow("Saldo Devedor",      n("raz_saldo_dev_sistema"),n("raz_saldo_dev_siga"),n("raz_saldo_dev_dif"));
-  drawRow("Saldo Credor",       n("raz_saldo_cred_sistema"),n("raz_saldo_cred_siga"),n("raz_saldo_cred_dif"), true);
-  drawRow("Devedor — Mês (Raz)",n("raz_devedor_sistema"),  n("raz_devedor_siga"),  n("raz_devedor_dif"));
-  drawRow("Credor — Mês (Raz)", n("raz_credor_sistema"),   n("raz_credor_siga"),   n("raz_credor_dif"), true);
+  drawGrade(
+    ["SALDO ANTERIOR","DESPESA","RECEITA","SALDO ATUAL"],
+    ["Devedor","Credor","Mês","Ano","Mês","Ano","Devedor","Credor"],
+    [
+      { label: "SISTEMA", color: AZUL, vals: [
+        n("raz_saldo_dev_sistema"), n("raz_saldo_cred_sistema"),
+        n("raz_desp_mes_sistema"),  n("raz_desp_ano_sistema"),
+        n("raz_rec_mes_sistema"),   n("raz_rec_ano_sistema"),
+        n("raz_devedor_sistema"),   n("raz_credor_sistema"),
+      ]},
+      { label: "SIGA", color: VERDE, bg: VERDE_CLR, vals: [
+        n("raz_saldo_dev_siga"), n("raz_saldo_cred_siga"),
+        n("raz_desp_mes_siga"),  n("raz_desp_ano_siga"),
+        n("raz_rec_mes_siga"),   n("raz_rec_ano_siga"),
+        n("raz_devedor_siga"),   n("raz_credor_siga"),
+      ]},
+      { label: "DIF", bg: AMAR_CLR, vals: [
+        n("raz_saldo_dev_dif"), n("raz_saldo_cred_dif"),
+        n("raz_desp_mes_dif"),  n("raz_desp_ano_dif"),
+        n("raz_rec_mes_dif"),   n("raz_rec_ano_dif"),
+        n("raz_devedor_dif"),   n("raz_credor_dif"),
+      ]},
+    ]
+  );
 
   // ══════════════════════════════
-  // SEÇÃO 4 — CONCILIAÇÃO
+  // SEÇÃO 4 — CONCILIAÇÃO (grade)
   // ══════════════════════════════
   drawSectionHeader("4. Conciliação Bancária");
-  drawColHeaders();
-  drawRow("Conciliação", n("conc_sistema"), n("conc_siga"), n("conc_dif"));
+  drawGrade(
+    ["CONCILIAÇÃO"],
+    ["SISTEMA","SIGA","DIF"],
+    [
+      { label: "", color: AZUL, vals: [n("conc_sistema"), n("conc_siga"), n("conc_dif")] },
+    ]
+  );
 
   // ══════════════════════════════
-  // SEÇÃO 5 — MOVIMENTAÇÃO BANCÁRIA
+  // SEÇÃO 5 — MOVIMENTAÇÃO BANCÁRIA (grade)
   // ══════════════════════════════
   drawSectionHeader("5. Movimentação Bancária");
-  drawColHeaders();
-  drawRow("Crédito", n("mov_cred_sistema"), n("mov_cred_siga"), n("mov_cred_dif"));
-  drawRow("Débito",  n("mov_deb_sistema"),  n("mov_deb_siga"),  n("mov_deb_dif"), true);
+  drawGrade(
+    ["CRÉDITO","DÉBITO"],
+    ["SISTEMA","SIGA","SISTEMA","SIGA"],
+    [
+      { label: "Valores", color: AZUL, vals: [n("mov_cred_sistema"), n("mov_cred_siga"), n("mov_deb_sistema"), n("mov_deb_siga")] },
+      { label: "DIF",     bg: AMAR_CLR, vals: [n("mov_cred_dif"), "—", n("mov_deb_dif"), "—"] },
+    ]
+  );
 
   // ══════════════════════════════
-  // SEÇÃO 6 — DEMONSTRATIVOS
+  // SEÇÃO 6 — DEMONSTRATIVOS (grade)
   // ══════════════════════════════
   drawSectionHeader("6. Demonstrativos Extras");
-  drawMesAnoRow("Ingresso",    "ing_mes", "ing_ano");
-  drawMesAnoRow("Desembolso",  "des_mes", "des_ano");
+  drawGrade(
+    ["INGRESSO","DESEMBOLSO"],
+    ["Mês SIST","Mês SIGA","Ano SIST","Ano SIGA","Mês SIST","Mês SIGA","Ano SIST","Ano SIGA"],
+    [
+      { label: "Valores", color: AZUL, vals: [
+        n("ing_mes_sistema"), n("ing_mes_siga"), n("ing_ano_sistema"), n("ing_ano_siga"),
+        n("des_mes_sistema"), n("des_mes_siga"), n("des_ano_sistema"), n("des_ano_siga"),
+      ]},
+      { label: "DIF", bg: AMAR_CLR, vals: [
+        n("ing_mes_dif"), "—", n("ing_ano_dif"), "—",
+        n("des_mes_dif"), "—", n("des_ano_dif"), "—",
+      ]},
+    ]
+  );
 
   // ══════════════════════════════
-  // SEÇÃO 7 — RECEITA
+  // SEÇÃO 7 — RECEITA (grade)
   // ══════════════════════════════
   drawSectionHeader("7. Receita");
   drawColHeaders();
-  drawRow("Receita Fixada",   n("rec_fix_sistema"), n("rec_fix_siga"), n("rec_fix_dif"));
-  drawMesAnoRow("Receita", "rec_mes", "rec_ano");
-  drawRow("Para Mais",  n("rec_mais_sist"), n("rec_mais_siga"), n("rec_mais_dif"), true);
-  drawRow("Para Menos", n("rec_menos_sist"),n("rec_menos_siga"),n("rec_menos_dif"));
+  drawRow("Receita Fixada", n("rec_fix_sistema"), n("rec_fix_siga"), n("rec_fix_dif"));
+  drawGrade(
+    ["RECEITA MÊS","RECEITA ANO"],
+    ["SISTEMA","SIGA","SISTEMA","SIGA"],
+    [
+      { label: "Valores", color: AZUL, vals: [n("rec_mes_sistema"), n("rec_mes_siga"), n("rec_ano_sistema"), n("rec_ano_siga")] },
+      { label: "DIF",     bg: AMAR_CLR, vals: [n("rec_mes_dif"), "—", n("rec_ano_dif"), "—"] },
+    ]
+  );
+  drawColHeaders();
+  drawRow("Para Mais",  n("rec_mais_sist"),  n("rec_mais_siga"),  n("rec_mais_dif"),  true);
+  drawRow("Para Menos", n("rec_menos_sist"), n("rec_menos_siga"), n("rec_menos_dif"));
 
   // ── Rodapé em todas as páginas ──
   const totalPages = pdf.getNumberOfPages();
