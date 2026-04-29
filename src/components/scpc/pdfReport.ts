@@ -201,11 +201,6 @@ export const gerarPdfRelatorio = (
     y += ROW_H + 1;
   };
 
-  // ══════════════════════════════
-  // SEÇÃO 1 — ORÇAMENTO (grade)
-  // ══════════════════════════════
-  drawSectionHeader("1. Orçamento");
-
   // Helper: desenha grade genérica
   const drawGrade = (
     grupos: string[],        // ex: ["ALTERAÇÃO DE QDD","CRÉDITOS ADICIONAIS"]
@@ -267,6 +262,12 @@ export const gerarPdfRelatorio = (
     });
     y += 2;
   };
+
+
+  // ══════════════════════════════
+  // SEÇÃO 1 — ORÇAMENTO (grade)
+  // ══════════════════════════════
+  drawSectionHeader("1. Orçamento");
 
   // Grade Orçamento: FIXADO | Alt.QDD Mês | Anulação QDD Mês | Créd.Adic. Mês | Anu.Créd. Mês | DOTAÇÃO
   // Linha MÊS
