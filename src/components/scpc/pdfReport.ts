@@ -502,61 +502,60 @@ export const gerarPdfRelatorio = (
   );
 
   // ══════════════════════════════
-  // SEÇÃO 4 — CONCILIAÇÃO (grade)
+  // SEÇÃO 4 — CONCILIAÇÃO BANCÁRIA
   // ══════════════════════════════
   drawSectionHeader("4. Conciliação Bancária");
   drawGrade(
     ["CONCILIAÇÃO"],
-    ["SISTEMA","SIGA","DIF"],
+    ["Mês","Ano"],
     [
-      { label: "", color: AZUL, vals: [n("conc_sistema"), n("conc_siga"), n("conc_dif")] },
+      { label: "SISTEMA", color: AZUL,  bg: BRANCO,    vals: [n("conc_mes_sistema"), n("conc_ano_sistema")] },
+      { label: "SIGA",    color: VERDE, bg: VERDE_CLR, vals: [n("conc_mes_siga"),    n("conc_ano_siga")] },
+      { label: "DIF",     bg: AMAR_CLR, vals: [n("conc_mes_dif"),    n("conc_ano_dif")] },
     ]
   );
 
   // ══════════════════════════════
-  // SEÇÃO 5 — MOVIMENTAÇÃO BANCÁRIA (grade)
+  // SEÇÃO 5 — MOVIMENTAÇÃO BANCÁRIA
   // ══════════════════════════════
   drawSectionHeader("5. Movimentação Bancária");
   drawGrade(
     ["CRÉDITO","DÉBITO"],
-    ["SISTEMA","SIGA","SISTEMA","SIGA"],
+    ["Mês","Ano","Mês","Ano"],
     [
-      { label: "Valores", color: AZUL, vals: [n("mov_cred_sistema"), n("mov_cred_siga"), n("mov_deb_sistema"), n("mov_deb_siga")] },
-      { label: "DIF",     bg: AMAR_CLR, vals: [n("mov_cred_dif"), "—", n("mov_deb_dif"), "—"] },
+      { label: "SISTEMA", color: AZUL,  bg: BRANCO,    vals: [n("mov_cred_mes_sistema"), n("mov_cred_ano_sistema"), n("mov_deb_mes_sistema"), n("mov_deb_ano_sistema")] },
+      { label: "SIGA",    color: VERDE, bg: VERDE_CLR, vals: [n("mov_cred_mes_siga"),    n("mov_cred_ano_siga"),    n("mov_deb_mes_siga"),    n("mov_deb_ano_siga")] },
+      { label: "DIF",     bg: AMAR_CLR, vals: [n("mov_cred_mes_dif"),    n("mov_cred_ano_dif"),    n("mov_deb_mes_dif"),    n("mov_deb_ano_dif")] },
     ]
   );
 
   // ══════════════════════════════
-  // SEÇÃO 6 — DEMONSTRATIVOS (grade)
+  // SEÇÃO 6 — DEMONSTRATIVOS EXTRAS
   // ══════════════════════════════
   drawSectionHeader("6. Demonstrativos Extras");
   drawGrade(
     ["INGRESSO","DESEMBOLSO"],
-    ["Mês SIST","Mês SIGA","Ano SIST","Ano SIGA","Mês SIST","Mês SIGA","Ano SIST","Ano SIGA"],
+    ["Mês","Ano","Mês","Ano"],
     [
-      { label: "Valores", color: AZUL, vals: [
-        n("ing_mes_sistema"), n("ing_mes_siga"), n("ing_ano_sistema"), n("ing_ano_siga"),
-        n("des_mes_sistema"), n("des_mes_siga"), n("des_ano_sistema"), n("des_ano_siga"),
-      ]},
-      { label: "DIF", bg: AMAR_CLR, vals: [
-        n("ing_mes_dif"), "—", n("ing_ano_dif"), "—",
-        n("des_mes_dif"), "—", n("des_ano_dif"), "—",
-      ]},
+      { label: "SISTEMA", color: AZUL,  bg: BRANCO,    vals: [n("ing_mes_sistema"), n("ing_ano_sistema"), n("des_mes_sistema"), n("des_ano_sistema")] },
+      { label: "SIGA",    color: VERDE, bg: VERDE_CLR, vals: [n("ing_mes_siga"),    n("ing_ano_siga"),    n("des_mes_siga"),    n("des_ano_siga")] },
+      { label: "DIF",     bg: AMAR_CLR, vals: [n("ing_mes_dif"),    n("ing_ano_dif"),    n("des_mes_dif"),    n("des_ano_dif")] },
     ]
   );
 
   // ══════════════════════════════
-  // SEÇÃO 7 — RECEITA (grade)
+  // SEÇÃO 7 — RECEITA
   // ══════════════════════════════
   drawSectionHeader("7. Receita");
   drawColHeaders();
   drawRow("Receita Fixada", n("rec_fix_sistema"), n("rec_fix_siga"), n("rec_fix_dif"));
   drawGrade(
     ["RECEITA MÊS","RECEITA ANO"],
-    ["SISTEMA","SIGA","SISTEMA","SIGA"],
+    ["Mês","Ano","Mês","Ano"],
     [
-      { label: "Valores", color: AZUL, vals: [n("rec_mes_sistema"), n("rec_mes_siga"), n("rec_ano_sistema"), n("rec_ano_siga")] },
-      { label: "DIF",     bg: AMAR_CLR, vals: [n("rec_mes_dif"), "—", n("rec_ano_dif"), "—"] },
+      { label: "SISTEMA", color: AZUL,  bg: BRANCO,    vals: [n("rec_mes_sistema"), n("rec_mes_sistema"), n("rec_ano_sistema"), n("rec_ano_sistema")] },
+      { label: "SIGA",    color: VERDE, bg: VERDE_CLR, vals: [n("rec_mes_siga"),    n("rec_mes_siga"),    n("rec_ano_siga"),    n("rec_ano_siga")] },
+      { label: "DIF",     bg: AMAR_CLR, vals: [n("rec_mes_dif"),    n("rec_mes_dif"),    n("rec_ano_dif"),    n("rec_ano_dif")] },
     ]
   );
   drawColHeaders();
