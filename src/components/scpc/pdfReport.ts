@@ -298,25 +298,16 @@ export const gerarPdfRelatorio = (
     ]
   );
 
-  // Fixado e Dotação
-  drawColHeaders();
-  drawRow("Valor Fixado", n("fix_sistema"), n("fix_siga"), n("fix_dif"));
-
-  // Dotação com destaque (sem texto, só valores)
-  checkY(ROW_H);
-  pdf.setFillColor(...AMAR_CLR);
-  pdf.rect(M, y, PW - M * 2, ROW_H, "F");
-  const x0dot = M + COL_LABEL;
-  pdf.setTextColor(...AZUL);
-  pdf.setFontSize(7.5);
-  pdf.setFont("helvetica", "bold");
-  pdf.text(n("dot_sistema"), x0dot + COL_W * 0.95, y + 3.8, { align: "right" });
-  pdf.setTextColor(...VERDE);
-  pdf.text(n("dot_siga"),    x0dot + COL_W * 1.95, y + 3.8, { align: "right" });
-  const difDot = parseFloat(n("dot_dif").replace(/\./g, "").replace(",", "."));
-  pdf.setTextColor(Math.abs(difDot) < 0.01 ? 60 : 180, Math.abs(difDot) < 0.01 ? 140 : 30, Math.abs(difDot) < 0.01 ? 60 : 30);
-  pdf.text(n("dot_dif"),     x0dot + COL_W * 2.95, y + 3.8, { align: "right" });
-  y += ROW_H + 2;
+  // Fixado e Dotação — grade SISTEMA/SIGA/DIF
+  drawGrade(
+    ["FIXADO","DOTAÇÃO"],
+    ["SISTEMA","SIGA","DIFERENÇA","SISTEMA","SIGA","DIFERENÇA"],
+    [
+      { label: "SISTEMA", color: AZUL,  bg: BRANCO,    vals: [n("fix_sistema"), n("fix_siga"), n("fix_dif"), n("dot_sistema"), n("dot_siga"), n("dot_dif")] },
+      { label: "SIGA",    color: VERDE, bg: VERDE_CLR, vals: [n("fix_siga"),    "",            "",           n("dot_siga"),    "",           ""] },
+      { label: "DIF",     bg: AMAR_CLR, vals:          [n("fix_dif"),    "",            "",           n("dot_dif"),    "",           ""] },
+    ]
+  );
 
   // ══════════════════════════════
   // SEÇÃO 2 — DESPESA (grade)
@@ -405,39 +396,28 @@ export const gerarPdfRelatorio = (
 
   y += 3;
 
-  // Restos a Pagar — grade SISTEMA/SIGA/DIF
+  // Restos a Pagar — DIF abaixo do SIGA
   drawGrade(
     ["PROCESSADO","NÃO PROCESSADO","SIGA"],
     ["VALOR","VALOR","VALOR"],
     [
       { label: "SISTEMA", color: AZUL,  bg: BRANCO,    vals: [n("proc_sistema"), n("naoproc_sistema"), ""] },
       { label: "SIGA",    color: VERDE, bg: VERDE_CLR, vals: ["", "", n("proc_siga")] },
-      { label: "DIF",     bg: AMAR_CLR, vals: [n("proc_dif"), "", ""] },
+      { label: "DIF",     bg: AMAR_CLR, vals: ["", "", n("proc_dif")] },
     ]
   );
 
-  // Saldo Disponível — com label
-  checkY(GH * 2);
-  pdf.setFillColor(...CINZA);
-  pdf.rect(M, y, PW - M * 2, GH, "F");
-  pdf.setTextColor(...BRANCO);
-  pdf.setFontSize(7.5);
-  pdf.setFont("helvetica", "bold");
-  pdf.text("SALDO DISPONÍVEL", M + 2, y + 3.8);
-  y += GH;
-  pdf.setFillColor(...AMAR_CLR);
-  pdf.rect(M, y, PW - M * 2, GH, "F");
-  const x0s = M + COL_LABEL;
-  pdf.setTextColor(...AZUL);
-  pdf.setFontSize(7.5);
-  pdf.setFont("helvetica", "bold");
-  pdf.text(n("saldo_disp_sistema"), x0s + COL_W * 0.95, y + 3.8, { align: "right" });
-  pdf.setTextColor(...VERDE);
-  pdf.text(n("saldo_disp_siga"),    x0s + COL_W * 1.95, y + 3.8, { align: "right" });
-  const difSaldo = parseFloat(n("saldo_disp_dif").replace(/\./g, "").replace(",", "."));
-  pdf.setTextColor(Math.abs(difSaldo) < 0.01 ? 60 : 180, Math.abs(difSaldo) < 0.01 ? 140 : 30, Math.abs(difSaldo) < 0.01 ? 60 : 30);
-  pdf.text(n("saldo_disp_dif"),     x0s + COL_W * 2.95, y + 3.8, { align: "right" });
-  y += GH + 2;
+  // Saldo Disponível — grade SISTEMA/SIGA/DIF
+  drawSectionHeader("Saldo Disponível");
+  drawGrade(
+    ["SALDO DISPONÍVEL"],
+    ["SISTEMA","SIGA","DIFERENÇA"],
+    [
+      { label: "SISTEMA", color: AZUL,  bg: BRANCO,    vals: [n("saldo_disp_sistema"), "", ""] },
+      { label: "SIGA",    color: VERDE, bg: VERDE_CLR, vals: ["", n("saldo_disp_siga"), ""] },
+      { label: "DIF",     bg: AMAR_CLR, vals: ["", "", n("saldo_disp_dif")] },
+    ]
+  );
 
   // ══════════════════════════════
   // SEÇÃO 3 — RAZÃO (grade)
@@ -515,7 +495,15 @@ export const gerarPdfRelatorio = (
   // ══════════════════════════════
   drawSectionHeader("7. Receita");
   drawColHeaders();
-  drawRow("Receita Fixada", n("rec_fix_sistema"), n("rec_fix_siga"), n("rec_fix_dif"));
+  drawGrade(
+    ["RECEITA FIXADA"],
+    ["SISTEMA","SIGA","DIFERENÇA"],
+    [
+      { label: "SISTEMA", color: AZUL,  bg: BRANCO,    vals: [n("rec_fix_sistema"), "", ""] },
+      { label: "SIGA",    color: VERDE, bg: VERDE_CLR, vals: ["", n("rec_fix_siga"), ""] },
+      { label: "DIF",     bg: AMAR_CLR, vals: ["", "", n("rec_fix_dif")] },
+    ]
+  );
   drawGrade(
     ["MÊS","ANO","PARA MAIS","PARA MENOS"],
     ["VALOR","VALOR","VALOR","VALOR"],
