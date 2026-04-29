@@ -55,6 +55,12 @@ export const gerarPdfRelatorio = (
   let y = M;
   let pageNum = 1;
 
+  // Constantes de layout de grade
+  const GH = 5.5;
+  const GLABEL = 28;
+  const GW = (PW - M * 2 - GLABEL) / 6;
+  const gx = M;
+
   const addPage = () => {
     pdf.addPage();
     pageNum++;
@@ -322,10 +328,7 @@ export const gerarPdfRelatorio = (
 
   // Layout da grade:
   // Colunas: Label(30) | Emp.Mês | Emp.Ano | Liq.Mês | Liq.Ano | Pag.Mês | Pag.Ano
-  const GLABEL = 28;
-  const GW = (PW - M * 2 - GLABEL) / 6;
-  const GH = 5.5;
-  const gx = M;
+
 
   checkY(GH * 4 + 4);
 
