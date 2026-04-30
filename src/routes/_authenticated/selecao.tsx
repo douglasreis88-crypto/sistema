@@ -116,7 +116,7 @@ function SelecaoPage() {
           </>
         )}
 
-        <div className="auth-foot">
+        <div className="auth-foot" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
           <button
             type="button"
             className="auth-link"
@@ -128,8 +128,8 @@ function SelecaoPage() {
           <button
             type="button"
             className="auth-link"
-            onClick={handleVoltar}
-            style={{ background: "none", border: "none", cursor: "pointer", marginTop: 8 }}
+            onClick={() => { navigate({ to: "/" }); }}
+            style={{ background: "none", border: "none", cursor: "pointer" }}
           >
             ↩ Voltar
           </button>
