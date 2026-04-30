@@ -37,13 +37,7 @@ function SelecaoPage() {
   };
 
   const handleVoltar = () => {
-    // Só volta se já tiver uma seleção ativa salva
-    const temSelecao = sessionStorage.getItem("scpc_sel_entidade") && sessionStorage.getItem("scpc_sel_municipio");
-    if (temSelecao) {
-      navigate({ to: "/" });
-    } else {
-      toast.info("Nenhuma seleção anterior para voltar.");
-    }
+    navigate({ to: "/" });
   };
 
   const isDouglas = user?.email?.toLowerCase() === "douglasreis88@gmail.com";
