@@ -131,16 +131,14 @@ function SelecaoPage() {
           >
             ← Sair
           </button>
-          {sessionStorage.getItem("scpc_sel_entidade") && (
-            <button
-              type="button"
-              className="auth-link"
-              onClick={handleVoltar}
-              style={{ background: "none", border: "none", cursor: "pointer", marginTop: 8 }}
-            >
-              ↩ Voltar
-            </button>
-          )}
+          <button
+            type="button"
+            className="auth-link"
+            onClick={handleVoltar}
+            style={{ background: "none", border: "none", cursor: "pointer", marginTop: 8 }}
+          >
+            ↩ Voltar
+          </button>
         </div>
       </div>
     </div>
